@@ -36,7 +36,7 @@ export default function IntegrationsSection() {
   };
 
   return (
-    <section className="bg-secondary">
+    <section className="bg-secondary" id="integrations">
       <div className="container mx-auto space-y-16 px-4 py-20">
         <motion.div
           className="space-y-4 text-center"
