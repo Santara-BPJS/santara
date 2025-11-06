@@ -69,7 +69,7 @@ export default function BenefitsSection() {
             const Icon = benefit.icon;
             return (
               <motion.div key={benefit.title} variants={itemVariants}>
-                <Card className="group hover:-translate-y-1 cursor-pointer space-y-4 transition-all duration-300">
+                <Card className="group hover:-translate-y-1 h-full cursor-pointer space-y-4 transition-all duration-300">
                   <CardHeader>
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-secondary">
                       <Icon className="h-7 w-7 text-primary" />
