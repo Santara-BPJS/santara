@@ -1,4 +1,7 @@
-import { Label as LabelPrimitive } from "radix-ui";
+/** biome-ignore-all lint/performance/noNamespaceImport: false positive */
+"use client";
+
+import * as LabelPrimitive from "@radix-ui/react-label";
 import type * as React from "react";
 
 import { cn } from "@/shared/lib/utils";
