@@ -91,14 +91,20 @@ export default function HeroSearchDemo() {
         setDisplayedQuestion(
           currentQA.question.slice(0, displayedQuestion.length + 1)
         );
-      } else if (
+        return;
+      }
+
+      if (
         stage === "question" &&
         displayedQuestion.length === currentQA.question.length
       ) {
         await new Promise((resolve) => setTimeout(resolve, 800));
         setStage("answer");
         setShowAnswer(true);
-      } else if (
+        return;
+      }
+
+      if (
         stage === "answer" &&
         displayedAnswer.length < currentQA.answer.length
       ) {
@@ -106,14 +112,20 @@ export default function HeroSearchDemo() {
         setDisplayedAnswer(
           currentQA.answer.slice(0, displayedAnswer.length + 1)
         );
-      } else if (
+        return;
+      }
+
+      if (
         stage === "answer" &&
         displayedAnswer.length === currentQA.answer.length
       ) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setStage("sources");
         setShowSources(true);
-      } else if (stage === "sources") {
+        return;
+      }
+
+      if (stage === "sources") {
         await new Promise((resolve) => setTimeout(resolve, 4000));
         setCurrentIndex((prev) => (prev + 1) % qaSequence.length);
         setDisplayedQuestion("");
@@ -121,6 +133,7 @@ export default function HeroSearchDemo() {
         setShowAnswer(false);
         setShowSources(false);
         setStage("question");
+        return;
       }
     };
 
@@ -132,11 +145,12 @@ export default function HeroSearchDemo() {
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-4"
       initial={{ opacity: 0, scale: 0.95 }}
+      layout
       transition={{ duration: 0.6 }}
     >
       <Card className="space-y-2 p-6">
         {/* Question Section */}
-        <div className="space-y-2">
+        <motion.div className="space-y-2" layout>
           <p className="font-semibold text-primary text-xs uppercase tracking-wide">
             Pertanyaan
           </p>
@@ -154,7 +168,7 @@ export default function HeroSearchDemo() {
               </motion.span>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Answer Section */}
         <AnimatePresence>
@@ -164,11 +178,12 @@ export default function HeroSearchDemo() {
               className="space-y-2 border-t pt-2"
               exit={{ opacity: 0, y: -10 }}
               initial={{ opacity: 0, y: 10 }}
+              layout
             >
               <p className="font-semibold text-primary text-xs uppercase tracking-wide">
                 Jawaban
               </p>
-              <p className="line-clamp-4 text-sm leading-relaxed">
+              <motion.p className="line-clamp-4 text-sm leading-relaxed" layout>
                 {displayedAnswer}
                 {displayedAnswer.length < currentQA.answer.length && (
                   <motion.span
@@ -182,7 +197,7 @@ export default function HeroSearchDemo() {
                     |
                   </motion.span>
                 )}
-              </p>
+              </motion.p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -195,6 +210,7 @@ export default function HeroSearchDemo() {
               className="space-y-2 border-t pt-2"
               exit={{ opacity: 0, y: -10 }}
               initial={{ opacity: 0, y: 10 }}
+              layout
             >
               <p className="font-semibold text-primary text-xs uppercase tracking-wide">
                 Sumber
@@ -208,6 +224,7 @@ export default function HeroSearchDemo() {
                       className="rounded-lg border bg-muted p-3 transition duration-200 hover:border-primary"
                       initial={{ opacity: 0, x: -10 }}
                       key={i}
+                      layout
                       transition={{ delay: i * 0.1 }}
                     >
                       <div className="flex items-start gap-3">
