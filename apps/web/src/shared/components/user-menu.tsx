@@ -1,4 +1,3 @@
-import { Link, useNavigate } from "@tanstack/react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,8 +5,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+} from "@/shared/components/ui/dropdown-menu";
+import { authClient } from "@/shared/lib/auth-client";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 

@@ -1,6 +1,11 @@
-import type { AppRouterClient } from "@santara/api/routers/index";
+import Header from "@/shared/components/header";
+import Loader from "@/shared/components/loader";
+import { ThemeProvider } from "@/shared/components/theme-provider";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { link, type orpc } from "@/shared/utils/orpc";
 import { createORPCClient } from "@orpc/client";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import type { AppRouterClient } from "@santara/api/routers/index";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
@@ -11,11 +16,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useState } from "react";
-import Header from "@/components/header";
-import Loader from "@/components/loader";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { link, type orpc } from "@/utils/orpc";
 import "../index.css";
 
 export type RouterAppContext = {
