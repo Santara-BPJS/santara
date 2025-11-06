@@ -221,7 +221,7 @@ export default function HeroSearchDemo() {
                   return (
                     <motion.div
                       animate={{ opacity: 1, x: 0 }}
-                      className="rounded-lg border bg-muted p-3 transition duration-200 hover:border-primary"
+                      className="rounded-lg border p-3 transition duration-200 hover:border-primary"
                       initial={{ opacity: 0, x: -10 }}
                       key={i}
                       layout
