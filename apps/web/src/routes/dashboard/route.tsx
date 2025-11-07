@@ -127,7 +127,7 @@ function RouteComponent() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-2">
+        <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
           <div className="relative w-sm">
             <Input
               className="peer ps-9"
