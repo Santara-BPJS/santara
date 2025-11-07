@@ -17,11 +17,6 @@ import {
   UsersIcon,
   ZapIcon,
 } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../shared/components/ui/avatar";
 import { Input } from "../../shared/components/ui/input";
 import {
   Sidebar,
@@ -35,6 +30,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "../../shared/components/ui/sidebar";
+import UserMenu from "../../shared/components/user-menu";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
@@ -51,8 +47,6 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function RouteComponent() {
-  const { session } = Route.useRouteContext();
-
   const {
     location: { pathname },
   } = useRouterState();
@@ -124,9 +118,16 @@ function RouteComponent() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton
-                onClick={async () => {
-                  await authClient.signOut();
-                  navigate({ to: "/login", replace: true });
+                onClick={() => {
+                  authClient.signOut({
+                    fetchOptions: {
+                      onSuccess: () => {
+                        navigate({
+                          to: "/",
+                        });
+                      },
+                    },
+                  });
                 }}
                 size="lg"
               >
@@ -147,12 +148,7 @@ function RouteComponent() {
               <SearchIcon aria-hidden="true" size={16} />
             </div>
           </div>
-          <Avatar>
-            <AvatarImage />
-            <AvatarFallback>
-              {session.data?.user.name[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <UserMenu />
         </header>
         <Outlet />
       </SidebarInset>
