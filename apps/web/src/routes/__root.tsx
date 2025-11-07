@@ -67,7 +67,7 @@ function RootComponent() {
     <>
       <HeadContent />
       {isFetching ? <Loader /> : <Outlet />}
-      <Toaster richColors />
+      <Toaster richColors theme="light" />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
     </>
