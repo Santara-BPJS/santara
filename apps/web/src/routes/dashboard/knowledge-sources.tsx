@@ -38,7 +38,6 @@ function RouteComponent() {
 
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl">Sumber Pengetahuan</h1>
