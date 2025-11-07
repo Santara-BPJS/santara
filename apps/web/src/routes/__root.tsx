@@ -1,4 +1,3 @@
-import Loader from "@/shared/components/loader";
 import { Toaster } from "@/shared/components/ui/sonner";
 import { link, type orpc } from "@/shared/utils/orpc";
 import { createORPCClient } from "@orpc/client";
@@ -10,7 +9,6 @@ import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
-  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useState } from "react";
@@ -56,17 +54,13 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 });
 
 function RootComponent() {
-  const isFetching = useRouterState({
-    select: (s) => s.isLoading,
-  });
-
   const [client] = useState<AppRouterClient>(() => createORPCClient(link));
   const [_orpcUtils] = useState(() => createTanstackQueryUtils(client));
 
   return (
     <>
       <HeadContent />
-      {isFetching ? <Loader /> : <Outlet />}
+      <Outlet />
       <Toaster richColors theme="light" />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
