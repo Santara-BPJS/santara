@@ -11,8 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardWhatsappBotRouteImport } from './routes/dashboard/whatsapp-bot'
+import { Route as DashboardUserManagementRouteImport } from './routes/dashboard/user-management'
+import { Route as DashboardKnowledgeSourcesRouteImport } from './routes/dashboard/knowledge-sources'
+import { Route as DashboardChatRouteImport } from './routes/dashboard/chat'
+import { Route as DashboardAiAgentRouteImport } from './routes/dashboard/ai-agent'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -24,7 +30,7 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
@@ -34,37 +40,115 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardWhatsappBotRoute = DashboardWhatsappBotRouteImport.update({
+  id: '/whatsapp-bot',
+  path: '/whatsapp-bot',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardUserManagementRoute = DashboardUserManagementRouteImport.update({
+  id: '/user-management',
+  path: '/user-management',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardKnowledgeSourcesRoute =
+  DashboardKnowledgeSourcesRouteImport.update({
+    id: '/knowledge-sources',
+    path: '/knowledge-sources',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardChatRoute = DashboardChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardAiAgentRoute = DashboardAiAgentRouteImport.update({
+  id: '/ai-agent',
+  path: '/ai-agent',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/ai-agent': typeof DashboardAiAgentRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/user-management': typeof DashboardUserManagementRoute
+  '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/ai-agent': typeof DashboardAiAgentRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/user-management': typeof DashboardUserManagementRoute
+  '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/dashboard/ai-agent': typeof DashboardAiAgentRoute
+  '/dashboard/chat': typeof DashboardChatRoute
+  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/user-management': typeof DashboardUserManagementRoute
+  '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/register'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/dashboard/ai-agent'
+    | '/dashboard/chat'
+    | '/dashboard/knowledge-sources'
+    | '/dashboard/user-management'
+    | '/dashboard/whatsapp-bot'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/register'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/register'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/dashboard/ai-agent'
+    | '/dashboard/chat'
+    | '/dashboard/knowledge-sources'
+    | '/dashboard/user-management'
+    | '/dashboard/whatsapp-bot'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/register'
+    | '/dashboard/ai-agent'
+    | '/dashboard/chat'
+    | '/dashboard/knowledge-sources'
+    | '/dashboard/user-management'
+    | '/dashboard/whatsapp-bot'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -89,7 +173,7 @@ declare module '@tanstack/react-router' {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -99,12 +183,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/whatsapp-bot': {
+      id: '/dashboard/whatsapp-bot'
+      path: '/whatsapp-bot'
+      fullPath: '/dashboard/whatsapp-bot'
+      preLoaderRoute: typeof DashboardWhatsappBotRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/user-management': {
+      id: '/dashboard/user-management'
+      path: '/user-management'
+      fullPath: '/dashboard/user-management'
+      preLoaderRoute: typeof DashboardUserManagementRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/knowledge-sources': {
+      id: '/dashboard/knowledge-sources'
+      path: '/knowledge-sources'
+      fullPath: '/dashboard/knowledge-sources'
+      preLoaderRoute: typeof DashboardKnowledgeSourcesRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/chat': {
+      id: '/dashboard/chat'
+      path: '/chat'
+      fullPath: '/dashboard/chat'
+      preLoaderRoute: typeof DashboardChatRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/ai-agent': {
+      id: '/dashboard/ai-agent'
+      path: '/ai-agent'
+      fullPath: '/dashboard/ai-agent'
+      preLoaderRoute: typeof DashboardAiAgentRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
+interface DashboardRouteRouteChildren {
+  DashboardAiAgentRoute: typeof DashboardAiAgentRoute
+  DashboardChatRoute: typeof DashboardChatRoute
+  DashboardKnowledgeSourcesRoute: typeof DashboardKnowledgeSourcesRoute
+  DashboardUserManagementRoute: typeof DashboardUserManagementRoute
+  DashboardWhatsappBotRoute: typeof DashboardWhatsappBotRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardAiAgentRoute: DashboardAiAgentRoute,
+  DashboardChatRoute: DashboardChatRoute,
+  DashboardKnowledgeSourcesRoute: DashboardKnowledgeSourcesRoute,
+  DashboardUserManagementRoute: DashboardUserManagementRoute,
+  DashboardWhatsappBotRoute: DashboardWhatsappBotRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }
