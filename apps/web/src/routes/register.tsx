@@ -12,7 +12,7 @@ import {
   FieldSet,
 } from "../shared/components/ui/field";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/register")({
   component: RouteComponent,
 });
 
@@ -35,11 +35,20 @@ function LoginForm() {
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <div className="size-12 rounded-full bg-primary" />
-                <h1 className="font-bold text-xl">Login ke Santara</h1>
+                <h1 className="font-bold text-xl">Daftar ke Santara</h1>
                 <FieldDescription>
-                  Akses platform pengetahuan untuk verifikasi klaim
+                  Mulai akses pengetahuan terverifikasi hari ini
                 </FieldDescription>
               </div>
+              <Field>
+                <FieldLabel htmlFor="name">Nama</FieldLabel>
+                <Input
+                  autoComplete="off"
+                  id="name"
+                  placeholder="Masukkan nama lengkap Anda"
+                />
+                <FieldError />
+              </Field>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -60,7 +69,7 @@ function LoginForm() {
                 <FieldError />
               </Field>
               <Field>
-                <Button>Login</Button>
+                <Button>Register gratis</Button>
               </Field>
               <FieldSeparator>Atau</FieldSeparator>
               <Field>
@@ -72,16 +81,16 @@ function LoginForm() {
                       fill="currentColor"
                     />
                   </svg>
-                  Login dengan Google
+                  Register dengan Google
                 </Button>
               </Field>
               <FieldDescription className="text-center">
-                Belum punya akun?{" "}
+                Sudah punya akun?{" "}
                 <Link
                   className="no-underline! font-semibold text-primary"
-                  to="/register"
+                  to="/login"
                 >
-                  Register di sini
+                  Login di sini
                 </Link>
               </FieldDescription>
             </FieldGroup>
@@ -89,7 +98,7 @@ function LoginForm() {
         </CardContent>
       </Card>
       <FieldDescription className="px-6 text-center">
-        Dengan masuk, Anda menyetujui{" "}
+        Dengan mendaftar, Anda menyetujui{" "}
         {/** biome-ignore lint/a11y/useValidAnchor: // TODO */}
         <a href="#">Syarat & Kebijakan</a>
       </FieldDescription>
