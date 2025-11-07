@@ -1,7 +1,10 @@
+import { authClient } from "@/shared/lib/auth-client";
 import {
   createFileRoute,
   Link,
   Outlet,
+  redirect,
+  useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
 import {
@@ -35,24 +38,25 @@ import {
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
-  // beforeLoad: async () => {
-  //   const session = await authClient.getSession();
-  //   if (!session.data) {
-  //     redirect({
-  //       to: "/login",
-  //       throw: true,
-  //     });
-  //   }
-  //   return { session };
-  // },
+  beforeLoad: async () => {
+    const session = await authClient.getSession();
+    if (!session.data) {
+      redirect({
+        to: "/login",
+        throw: true,
+      });
+    }
+    return { session };
+  },
 });
 
 function RouteComponent() {
-  // const { session } = Route.useRouteContext();
+  const { session } = Route.useRouteContext();
 
   const {
     location: { pathname },
   } = useRouterState();
+  const navigate = useNavigate();
 
   return (
     <SidebarProvider>
@@ -119,7 +123,13 @@ function RouteComponent() {
         <SidebarFooter className="border-t">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg">
+              <SidebarMenuButton
+                onClick={async () => {
+                  await authClient.signOut();
+                  navigate({ to: "/login", replace: true });
+                }}
+                size="lg"
+              >
                 <LogOutIcon /> Logout
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -139,7 +149,9 @@ function RouteComponent() {
           </div>
           <Avatar>
             <AvatarImage />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>
+              {session.data?.user.name[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </header>
         <Outlet />
