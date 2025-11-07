@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ClockIcon, SearchIcon } from "lucide-react";
+import { useState } from "react";
 import { RecentUpdateItem } from "../../features/dashboard/components/recent-update-item";
 import { StatCard } from "../../features/dashboard/components/stat-card";
 import {
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   const stats = [
     { title: "Top 5 Pertanyaan Mingguan", value: "5" },
     { title: "Jumlah Dokumen Pengetahuan", value: "247" },
@@ -52,6 +55,15 @@ function RouteComponent() {
   // Get user name from session/auth (placeholder for now)
   const userName = "asd";
 
+  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      navigate({
+        to: "/dashboard/chat",
+        search: { q: searchQuery },
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 p-6">
       <div>
@@ -66,7 +78,10 @@ function RouteComponent() {
       <div className="relative w-full">
         <Input
           className="peer h-12 ps-9 text-lg"
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearchSubmit}
           placeholder="Cari regulasi tentang verifikasi klaim rawat inap..."
+          value={searchQuery}
         />
         <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
           <SearchIcon aria-hidden="true" size={20} />

@@ -3,12 +3,21 @@ import { ChatInput } from "@/features/chat/components/chat-input";
 import { ChatMessage } from "@/features/chat/components/chat-message";
 import { useChat } from "@/features/chat/hooks/use-chat";
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+
+type ChatSearchParams = {
+  q?: string;
+};
 
 export const Route = createFileRoute("/dashboard/chat")({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>): ChatSearchParams => ({
+    q: (search.q as string) || "",
+  }),
 });
 
 function RouteComponent() {
+  const { q } = Route.useSearch();
   const {
     messages,
     input,
@@ -17,6 +26,17 @@ function RouteComponent() {
     messagesEndRef,
     handleSendMessage,
   } = useChat();
+
+  useEffect(() => {
+    if (q && messages.length === 0) {
+      setInput(q);
+      // Auto-submit the query from search params
+      setTimeout(() => {
+        handleSendMessage();
+        // biome-ignore lint/style/noMagicNumbers: false positive
+      }, 100);
+    }
+  }, [q, messages.length, setInput, handleSendMessage]);
 
   return (
     <div className="flex h-[calc(100vh-var(--header-height))] flex-col overflow-hidden">
