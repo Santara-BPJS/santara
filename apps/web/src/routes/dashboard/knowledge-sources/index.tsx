@@ -8,12 +8,16 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
-import { orpc } from "@/shared/utils/orpc";
+import { orpc, queryClient } from "@/shared/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cloud, FolderIcon } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/")({
+  loader: () =>
+    queryClient.ensureQueryData(
+      orpc.storage.folderRouter.findMany.queryOptions()
+    ),
   component: RouteComponent,
 });
 

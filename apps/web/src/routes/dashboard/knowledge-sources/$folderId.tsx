@@ -1,4 +1,4 @@
-import { orpc } from "@/shared/utils/orpc";
+import { orpc, queryClient } from "@/shared/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileIcon } from "lucide-react";
@@ -13,6 +13,12 @@ import {
 } from "../../../shared/components/ui/empty";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/$folderId")({
+  loader: ({ params }) =>
+    queryClient.ensureQueryData(
+      orpc.storage.fileRouter.findMany.queryOptions({
+        input: { folderId: params.folderId },
+      })
+    ),
   component: RouteComponent,
 });
 
