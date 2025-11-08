@@ -11,7 +11,7 @@ import {
 } from "../../shared/components/ui/card";
 import { Input } from "../../shared/components/ui/input";
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createFileRoute("/dashboard/home")({
   component: RouteComponent,
 });
 
