@@ -34,10 +34,13 @@ async function uploadFile(options: UploadOptions): Promise<UploadResult> {
     ? `${options.folder}/${options.filename}`
     : options.filename;
 
+  const arrayBuffer = await options.file.arrayBuffer();
+  const buffer = new Uint8Array(arrayBuffer);
+
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: path,
-    Body: options.file,
+    Body: buffer,
     ContentType: options.mimeType,
   });
 
