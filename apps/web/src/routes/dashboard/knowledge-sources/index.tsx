@@ -8,29 +8,18 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/shared/components/ui/empty";
-import { orpc, queryClient } from "@/shared/utils/orpc";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@/shared/utils/orpc";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cloud, FolderIcon } from "lucide-react";
+import { FolderCardSkeleton } from "../../../features/knowledge-sources/components/folder-card";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/")({
-  loader: async () => {
-    // Prefetch data without blocking navigation
-    await queryClient.prefetchQuery(
-      orpc.storage.folderRouter.findMany.queryOptions()
-    );
-  },
   component: RouteComponent,
-  pendingComponent: () => (
-    <div className="flex h-full items-center justify-center">
-      <div className="text-muted-foreground">Memuat...</div>
-    </div>
-  ),
 });
 
 function RouteComponent() {
-  // Use suspense query to get the data (will use cached data from prefetch)
-  const { data } = useSuspenseQuery(
+  const { data, isLoading } = useQuery(
     orpc.storage.folderRouter.findMany.queryOptions()
   );
 
@@ -52,7 +41,15 @@ function RouteComponent() {
         </div>
       </div>
 
-      {data?.folders.length === 0 ? (
+      {isLoading && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: false positive
+            <FolderCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+      {!isLoading && data?.folders.length === 0 && (
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -65,9 +62,10 @@ function RouteComponent() {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-      ) : (
+      )}
+      {!isLoading && data && data.folders.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data?.folders?.map((folder) => (
+          {data.folders.map((folder) => (
             <FolderCard folder={folder} key={folder.id} />
           ))}
         </div>

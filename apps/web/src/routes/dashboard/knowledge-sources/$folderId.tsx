@@ -1,8 +1,11 @@
-import { orpc, queryClient } from "@/shared/utils/orpc";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "@/shared/utils/orpc";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileIcon } from "lucide-react";
-import { FileCard } from "../../../features/knowledge-sources/components/file-card";
+import {
+  FileCard,
+  FileCardSkeleton,
+} from "../../../features/knowledge-sources/components/file-card";
 import UploadFileButton from "../../../features/knowledge-sources/components/upload-file-button";
 import {
   Empty,
@@ -13,26 +16,12 @@ import {
 } from "../../../shared/components/ui/empty";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/$folderId")({
-  loader: async ({ params }) => {
-    // Prefetch data without blocking navigation
-    await queryClient.prefetchQuery(
-      orpc.storage.fileRouter.findMany.queryOptions({
-        input: { folderId: params.folderId },
-      })
-    );
-  },
   component: RouteComponent,
-  pendingComponent: () => (
-    <div className="flex h-full items-center justify-center">
-      <div className="text-muted-foreground">Memuat...</div>
-    </div>
-  ),
 });
 
 function RouteComponent() {
   const { folderId } = Route.useParams();
-  // Use suspense query to get the data (will use cached data from prefetch)
-  const { data } = useSuspenseQuery(
+  const { data, isLoading } = useQuery(
     orpc.storage.fileRouter.findMany.queryOptions({
       input: { folderId },
     })
@@ -51,7 +40,15 @@ function RouteComponent() {
           <UploadFileButton folderId={folderId} />
         </div>
       </div>
-      {data?.files.length === 0 ? (
+      {isLoading && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: false positive
+            <FileCardSkeleton key={i} />
+          ))}
+        </div>
+      )}
+      {!isLoading && data?.files.length === 0 && (
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -63,9 +60,10 @@ function RouteComponent() {
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
-      ) : (
+      )}
+      {!isLoading && data && data.files.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data?.files?.map((file) => (
+          {data.files.map((file) => (
             <FileCard file={file} key={file.id} />
           ))}
         </div>

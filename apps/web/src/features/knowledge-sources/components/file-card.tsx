@@ -1,9 +1,11 @@
+import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { formatFileSize } from "@santara/utils";
 import {
   FileArchiveIcon,
@@ -71,6 +73,29 @@ export function FileCard({ file }: FileCardProps) {
             day: "2-digit",
             month: "2-digit",
           })}
+        </CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+
+export function FileCardSkeleton() {
+  return (
+    <Card className="relative">
+      <CardHeader>
+        <div className="absolute top-4 right-4 flex items-center gap-1">
+          <Button disabled size="icon-sm" variant="ghost">
+            <Skeleton className="size-4" />
+          </Button>
+        </div>
+        <div className="mb-4">
+          <Skeleton className="size-12" />
+        </div>
+        <CardTitle>
+          <Skeleton className="h-6 w-3/4" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-4 w-1/2" />
         </CardDescription>
       </CardHeader>
     </Card>
