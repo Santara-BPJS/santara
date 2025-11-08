@@ -60,16 +60,19 @@ export function LoginForm() {
   });
 
   const handleGoogleSignIn = async () => {
-    // try {
-    //   await authClient.signIn.social({
-    //     provider: "google",
-    //     callbackURL: "/dashboard",
-    //   });
-    // } catch (err) {
-    //   toast.error("Login dengan Google gagal", {
-    //     description: "Silakan coba lagi.",
-    //   });
-    // }
+    await authClient.signIn.social(
+      {
+        provider: "google",
+        callbackURL: `${window.location.origin}/dashboard`,
+      },
+      {
+        onError: (ctx) => {
+          toast.error("Login gagal", {
+            description: ctx.error.message || "Silakan coba lagi.",
+          });
+        },
+      }
+    );
   };
 
   return (
