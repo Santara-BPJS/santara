@@ -34,7 +34,8 @@ import UserMenu from "../../shared/components/user-menu";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async () => {
+    // Check authentication first
     const session = await authClient.getSession();
     if (!session.data) {
       redirect({
@@ -43,7 +44,9 @@ export const Route = createFileRoute("/dashboard")({
       });
     }
 
-    // Redirect to /dashboard/home if accessing /dashboard exactly
+    return { session };
+  },
+  loader: ({ location }) => {
     if (
       location.pathname === "/dashboard" ||
       location.pathname === "/dashboard/"
@@ -53,8 +56,6 @@ export const Route = createFileRoute("/dashboard")({
         throw: true,
       });
     }
-
-    return { session };
   },
 });
 

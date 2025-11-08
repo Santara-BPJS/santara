@@ -1,4 +1,5 @@
 import { orpc, queryClient } from "@/shared/utils/orpc";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileIcon } from "lucide-react";
 import { FileCard } from "../../../features/knowledge-sources/components/file-card";
@@ -12,18 +13,30 @@ import {
 } from "../../../shared/components/ui/empty";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/$folderId")({
-  loader: ({ params }) =>
-    queryClient.ensureQueryData(
+  loader: async ({ params }) => {
+    // Prefetch data without blocking navigation
+    await queryClient.prefetchQuery(
       orpc.storage.fileRouter.findMany.queryOptions({
         input: { folderId: params.folderId },
       })
-    ),
+    );
+  },
   component: RouteComponent,
+  pendingComponent: () => (
+    <div className="flex h-full items-center justify-center">
+      <div className="text-muted-foreground">Memuat...</div>
+    </div>
+  ),
 });
 
 function RouteComponent() {
   const { folderId } = Route.useParams();
-  const data = Route.useLoaderData();
+  // Use suspense query to get the data (will use cached data from prefetch)
+  const { data } = useSuspenseQuery(
+    orpc.storage.fileRouter.findMany.queryOptions({
+      input: { folderId },
+    })
+  );
 
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
