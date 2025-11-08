@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "../../shared/components/ui/card";
 import { Input } from "../../shared/components/ui/input";
+import { Skeleton } from "../../shared/components/ui/skeleton";
+import { authClient } from "../../shared/lib/auth-client";
 
 export const Route = createFileRoute("/dashboard/home")({
   component: RouteComponent,
@@ -52,8 +54,7 @@ function RouteComponent() {
     },
   ];
 
-  // Get user name from session/auth (placeholder for now)
-  const userName = "asd";
+  const { data, isPending } = authClient.useSession();
 
   const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && searchQuery.trim()) {
@@ -68,7 +69,14 @@ function RouteComponent() {
     <div className="space-y-6 p-6">
       <div>
         <h1 className="font-bold text-3xl">
-          Selamat datang, <span className="text-primary">{userName}</span>
+          Selamat datang,{" "}
+          {isPending ? (
+            <Skeleton className="w-32" />
+          ) : (
+            <span className="text-primary">
+              {data?.user.name.split(" ")[0]}
+            </span>
+          )}
         </h1>
         <p className="text-muted-foreground">
           Akses pengetahuan terverifikasi dan percepat verifikasi klaim Anda
