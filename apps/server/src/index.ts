@@ -6,7 +6,6 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { createContext } from "@santara/api/context";
 import { appRouter } from "@santara/api/routers/index";
 import { auth } from "@santara/auth";
-import { env } from "cloudflare:workers";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -17,7 +16,7 @@ app.use(logger());
 app.use(
   "/*",
   cors({
-    origin: env.CORS_ORIGIN || "",
+    origin: ["https://santara.ahargunyllib.dev", "http://localhost:3001"],
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
