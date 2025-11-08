@@ -15,7 +15,7 @@ export const auth = betterAuth<BetterAuthOptions>({
       verification,
     },
   }),
-  trustedOrigins: [env.CORS_ORIGIN],
+  trustedOrigins: ["https://santara.ahargunyllib.dev", "http://localhost:3001"],
   emailAndPassword: {
     enabled: true,
   },

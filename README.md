@@ -22,6 +22,7 @@ First, install the dependencies:
 ```bash
 bun install
 ```
+
 ## Database Setup
 
 This project uses PostgreSQL with Drizzle ORM.
@@ -30,6 +31,7 @@ This project uses PostgreSQL with Drizzle ORM.
 2. Update your `apps/server/.env` file with your PostgreSQL connection details.
 
 3. Apply the schema to your database:
+
 ```bash
 bun db:generate
 bun db:migrate
@@ -47,13 +49,16 @@ The API is running at [http://localhost:3000](http://localhost:3000).
 ## Before Deploying to Cloudflare
 
 When you are ready to deploy your app to Cloudflare Workers, you'll have to make a couple changes.
+
 - Change your url environment variables from localhost to your actual production domains in the following files:
+
 ```bash
 # apps/web/.env
 SERVER_URL={your-production-server-domain}
 ```
 
 - Change custom domain settings in the following files:
+
 ```bash
 # apps/web/wrangler.jsonc
 "routes": [
@@ -77,20 +82,34 @@ SERVER_URL={your-production-server-domain}
 - Update authentication cookie settings in `packages/auth/src/index.ts` to enable cross-subdomain cookies and cookie caching for production. (optional but recommended for better user experience).
 
 - Put your server production secret from `.env` file in your Cloudflare Workers secrets:
+
 ```bash
 wrangler secret put BETTER_AUTH_SECRET
 wrangler secret put BETTER_AUTH_URL
 wrangler secret put DATABASE_URL
-wrangler secret put CORS_ORIGIN
 wrangler secret put GOOGLE_CLIENT_ID
 wrangler secret put GOOGLE_CLIENT_SECRET
 ```
 
+- Update CORS settings in `apps/server/src/index.ts` to allow requests from your production web domain:
+
+```typescript
+cors({
+  origin: ["{your-production-web-domain}"],
+  ...otherCorsOptions,
+});
+```
+
+- Update Trusted Origins in `packages/auth/src/index.ts` to include your production web domain for OAuth to work properly:
+
+```typescript
+trustedOrigins: ["{your-production-web-domain}"];
+```
 
 ## Deployment (Cloudflare Wrangler)
-- Web deploy: cd apps/web && bun deploy
-- Server deploy: cd apps/server && bun deploy
 
+- Web deploy: cd apps/web && bun run deploy
+- Server deploy: cd apps/server && bun run deploy
 
 ## Project Structure
 
