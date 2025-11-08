@@ -8,13 +8,47 @@ import {
   validateMimeType,
 } from "@santara/storage";
 import { HTTP_STATUS_CODE, tryCatch } from "@santara/utils";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { o, protectedProcedure } from "../..";
-import { createFileInputSchema } from "../../dtos";
+import {
+  createFileInputSchema,
+  deleteFileInputSchema,
+  listFilesInputSchema,
+  listFilesOutputSchema,
+} from "../../dtos";
 
 export const fileRouter = o.prefix("/files").router({
-  createFile: protectedProcedure
+  findMany: protectedProcedure
+    .route({
+      method: "GET",
+      path: "/",
+      description: "List all files",
+    })
+    .input(listFilesInputSchema)
+    .output(listFilesOutputSchema)
+    .handler(async ({ input }) => {
+      const { data: files, error } = await tryCatch(
+        db
+          .select()
+          .from(schema.file)
+          .where(
+            and(
+              isNull(schema.file.deletedAt),
+              eq(schema.file.folderId, input.folderId)
+            )
+          )
+      );
+      if (error) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to fetch files",
+          cause: error,
+        });
+      }
+      return { files };
+    }),
+  create: protectedProcedure
     .route({
       method: "POST",
       path: "/",
@@ -68,7 +102,7 @@ export const fileRouter = o.prefix("/files").router({
       }
 
       const sanitizedFilename = sanitizeFilename(input.file.name);
-      const fileCategory = getFileCategory(sanitizedFilename);
+      const fileCategory = getFileCategory(mimeType);
 
       const { data: uploadData, error } = await tryCatch(
         s3StorageProvider.upload({
@@ -81,7 +115,7 @@ export const fileRouter = o.prefix("/files").router({
       if (error) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
           status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
-          message: "File upload failed",
+          message: error.message || "Failed to upload file",
           cause: error,
           data: { filename: sanitizedFilename, folderId: folderRecords[0].id },
         });
@@ -110,6 +144,38 @@ export const fileRouter = o.prefix("/files").router({
             filename: sanitizedFilename,
             folderId: folderRecords[0].id,
           },
+        });
+      }
+
+      return;
+    }),
+  delete: protectedProcedure
+    .route({
+      method: "DELETE",
+      path: "/{fileId}",
+    })
+    .input(deleteFileInputSchema)
+    .handler(async ({ input }) => {
+      const { data: queryResult, error: deleteError } = await tryCatch(
+        db
+          .update(schema.file)
+          .set({ deletedAt: new Date() })
+          .where(eq(schema.file.id, input.fileId))
+      );
+      if (deleteError) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to delete file",
+          cause: deleteError,
+          data: input,
+        });
+      }
+
+      if (queryResult.rowCount === 0) {
+        throw new ORPCError("NOT_FOUND", {
+          status: HTTP_STATUS_CODE.NOT_FOUND,
+          message: "File not found",
+          data: input,
         });
       }
 
