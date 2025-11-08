@@ -1,40 +1,24 @@
 import { CreateFolderDialog } from "@/features/knowledge-sources/components/create-folder-dialog";
-import { DeleteFolderDialog } from "@/features/knowledge-sources/components/delete-folder-dialog";
-import { EditFolderDialog } from "@/features/knowledge-sources/components/edit-folder-dialog";
 import { FolderCard } from "@/features/knowledge-sources/components/folder-card";
-import { useKnowledgeSources } from "@/features/knowledge-sources/hooks/use-knowledge-sources";
 import { Button } from "@/shared/components/ui/button";
+import { orpc } from "@/shared/utils/orpc";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Cloud } from "lucide-react";
+import { Cloud, FolderIcon } from "lucide-react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "../../shared/components/ui/empty";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const {
-    folders,
-    isCreateDialogOpen,
-    setIsCreateDialogOpen,
-    isEditDialogOpen,
-    setIsEditDialogOpen,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
-    folderName,
-    setFolderName,
-    handleCreateFolder,
-    handleOpenEditDialog,
-    handleUpdateFolder,
-    handleCancelEdit,
-    handleOpenDeleteDialog,
-    handleConfirmDelete,
-    handleCancelDelete,
-    handleConnectGoogleDrive,
-  } = useKnowledgeSources();
-
-  const handleFolderClick = (_folderId: string) => {
-    // TODO: Navigate to folder detail page
-  };
+  const { data } = useQuery(orpc.storage.folderRouter.findMany.queryOptions());
 
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
@@ -46,47 +30,34 @@ function RouteComponent() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <CreateFolderDialog
-            folderName={folderName}
-            onFolderNameChange={setFolderName}
-            onOpenChange={setIsCreateDialogOpen}
-            onSubmit={handleCreateFolder}
-            open={isCreateDialogOpen}
-          />
-          <Button onClick={handleConnectGoogleDrive} variant="outline">
+          <CreateFolderDialog />
+          <Button variant="outline">
             <Cloud />
             Hubungkan Google Drive
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {folders.map((folder) => (
-          <FolderCard
-            folder={folder}
-            key={folder.id}
-            onClick={handleFolderClick}
-            onDelete={handleOpenDeleteDialog}
-            onEdit={handleOpenEditDialog}
-          />
-        ))}
-      </div>
-
-      <EditFolderDialog
-        folderName={folderName}
-        onCancel={handleCancelEdit}
-        onFolderNameChange={setFolderName}
-        onOpenChange={setIsEditDialogOpen}
-        onSubmit={handleUpdateFolder}
-        open={isEditDialogOpen}
-      />
-
-      <DeleteFolderDialog
-        onCancel={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        onOpenChange={setIsDeleteDialogOpen}
-        open={isDeleteDialogOpen}
-      />
+      {data?.folders.length === 0 ? (
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <FolderIcon />
+            </EmptyMedia>
+            <EmptyTitle>Belum ada folder pengetahuan</EmptyTitle>
+            <EmptyDescription>
+              Buat folder pengetahuan pertama Anda untuk mulai mengelola dokumen
+              Anda.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {data?.folders?.map((folder) => (
+            <FolderCard folder={folder} key={folder.id} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

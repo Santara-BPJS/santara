@@ -1,6 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -9,25 +10,53 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
+import { dto } from "@santara/api";
+import { useForm } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import { FolderPlus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldSet,
+} from "../../../shared/components/ui/field";
+import { orpc, queryClient } from "../../../shared/utils/orpc";
 
-type CreateFolderDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  folderName: string;
-  onFolderNameChange: (name: string) => void;
-  onSubmit: () => void;
-};
+export function CreateFolderDialog() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { mutateAsync } = useMutation(
+    orpc.storage.folderRouter.create.mutationOptions()
+  );
+  const form = useForm({
+    defaultValues: {
+      name: "",
+    },
+    validators: {
+      onSubmit: dto.createFolderInputSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await mutateAsync(value, {
+        onSuccess: () => {
+          form.reset();
+          toast.success("Folder berhasil dibuat");
+          setIsOpen(false);
+          queryClient.invalidateQueries({
+            queryKey: orpc.storage.folderRouter.findMany.queryKey(),
+          });
+        },
+        onError: (ctx) => {
+          toast.error("Gagal membuat folder", {
+            description: ctx.message || "Silakan coba lagi.",
+          });
+        },
+      });
+    },
+  });
 
-export function CreateFolderDialog({
-  open,
-  onOpenChange,
-  folderName,
-  onFolderNameChange,
-  onSubmit,
-}: CreateFolderDialogProps) {
   return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogTrigger asChild>
         <Button>
           <FolderPlus />
@@ -42,18 +71,58 @@ export function CreateFolderDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Input
-            onChange={(e) => onFolderNameChange(e.target.value)}
-            placeholder="Nama folder baru"
-            type="text"
-            value={folderName}
-          />
+          <form
+            id="create-folder-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit(e);
+            }}
+          >
+            <FieldSet>
+              <FieldGroup>
+                <form.Field name="name">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Input
+                          aria-invalid={isInvalid}
+                          id={field.name}
+                          name={field.name}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Nama folder baru"
+                          type="text"
+                          value={field.state.value}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+            </FieldSet>
+          </form>
         </div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} variant="outline">
-            Batal
-          </Button>
-          <Button onClick={onSubmit}>Buat</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Batal</Button>
+          </DialogClose>
+          <form.Subscribe>
+            {(state) => (
+              <Button
+                disabled={!state.canSubmit || state.isSubmitting}
+                form="create-folder-form"
+                type="submit"
+              >
+                {state.isSubmitting ? "Membuat..." : "Buat Folder"}
+              </Button>
+            )}
+          </form.Subscribe>
         </DialogFooter>
       </DialogContent>
     </Dialog>
