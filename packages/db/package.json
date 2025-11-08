@@ -24,13 +24,14 @@
     "tsdown": "catalog:"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5",
+    "drizzle-orm": "^0.44.2"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.2",
     "@neondatabase/serverless": "^1.0.1",
     "ws": "^8.18.3",
     "dotenv": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@santara/utils": "workspace:*"
   }
 }
