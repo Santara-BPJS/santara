@@ -9,7 +9,6 @@ import {
   EmptyTitle,
 } from "@/shared/components/ui/empty";
 import { orpc, queryClient } from "@/shared/utils/orpc";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cloud, FolderIcon } from "lucide-react";
 
@@ -22,7 +21,7 @@ export const Route = createFileRoute("/dashboard/knowledge-sources/")({
 });
 
 function RouteComponent() {
-  const { data } = useQuery(orpc.storage.folderRouter.findMany.queryOptions());
+  const data = Route.useLoaderData();
 
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
