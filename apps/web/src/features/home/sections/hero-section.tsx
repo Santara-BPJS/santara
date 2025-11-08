@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "../../../shared/components/ui/button";
 import HeroSearchDemo from "../components/hero-search-demo";
 
@@ -18,8 +19,12 @@ export default function HeroSection() {
             </p>
           </div>
           <div className="flex flex-row items-center gap-4">
-            <Button size="lg">Sign Up gratis</Button>
-            <Button variant="outline">Login</Button>
+            <Link to="/register">
+              <Button size="lg">Sign Up gratis</Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="outline">Login</Button>
+            </Link>
           </div>
         </div>
         <div>
