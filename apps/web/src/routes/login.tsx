@@ -1,18 +1,16 @@
+import { LoginForm } from "@/features/auth/components/login-form";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
 
 export const Route = createFileRoute("/login")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [showSignIn, setShowSignIn] = useState(false);
-
-  return showSignIn ? (
-    <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-  ) : (
-    <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
+  return (
+    <div className="flex min-h-svh w-full items-center justify-center bg-accent p-6">
+      <div className="w-full max-w-md">
+        <LoginForm />
+      </div>
+    </div>
   );
 }

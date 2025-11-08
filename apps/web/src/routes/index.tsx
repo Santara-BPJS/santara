@@ -1,36 +1,30 @@
-import { orpc } from "@/utils/orpc";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import BenefitsSection from "../features/home/sections/benefits-section";
+import ContactSection from "../features/home/sections/contact-section";
+import Footer from "../shared/components/footer";
+import HeroSection from "../features/home/sections/hero-section";
+import IntegrationsSection from "../features/home/sections/integrations-section";
+import SecuritySection from "../features/home/sections/security-section";
+import TestimonialsSection from "../features/home/sections/testimonials-section";
+import TrustSection from "../features/home/sections/trust-section";
+import Header from "../shared/components/header";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
 });
 
 function HomeComponent() {
-  const healthCheck = useQuery(orpc.healthCheck.queryOptions());
-
-  let status: string | null = null;
-  if (healthCheck.isLoading) {
-    status = "Checking...";
-  } else if (healthCheck.data) {
-    status = "Connected";
-  } else {
-    status = "Disconnected";
-  }
-
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-2">
-      <div className="grid gap-6">
-        <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-2 w-2 rounded-full ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
-            />
-            <span className="text-muted-foreground text-sm">{status}</span>
-          </div>
-        </section>
-      </div>
-    </div>
+    <main>
+      <Header />
+      <HeroSection />
+      <TrustSection />
+      <BenefitsSection />
+      <IntegrationsSection />
+      <SecuritySection />
+      <TestimonialsSection />
+      <ContactSection />
+      <Footer />
+    </main>
   );
 }

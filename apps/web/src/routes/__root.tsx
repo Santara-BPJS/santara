@@ -1,21 +1,17 @@
-import type { AppRouterClient } from "@santara/api/routers/index";
+import { Toaster } from "@/shared/components/ui/sonner";
+import { link, type orpc } from "@/shared/utils/orpc";
 import { createORPCClient } from "@orpc/client";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import type { AppRouterClient } from "@santara/api/routers/index";
 import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   HeadContent,
   Outlet,
-  useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useState } from "react";
-import Header from "@/components/header";
-import Loader from "@/components/loader";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { link, type orpc } from "@/utils/orpc";
 import "../index.css";
 
 export type RouterAppContext = {
@@ -40,33 +36,32 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
         rel: "icon",
         href: "/favicon.ico",
       },
+      {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap",
+      },
     ],
   }),
 });
 
 function RootComponent() {
-  const isFetching = useRouterState({
-    select: (s) => s.isLoading,
-  });
-
   const [client] = useState<AppRouterClient>(() => createORPCClient(link));
   const [_orpcUtils] = useState(() => createTanstackQueryUtils(client));
 
   return (
     <>
       <HeadContent />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        disableTransitionOnChange
-        storageKey="vite-ui-theme"
-      >
-        <div className="grid h-svh grid-rows-[auto_1fr]">
-          <Header />
-          {isFetching ? <Loader /> : <Outlet />}
-        </div>
-        <Toaster richColors />
-      </ThemeProvider>
+      <Outlet />
+      <Toaster richColors theme="light" />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
     </>

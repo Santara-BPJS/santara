@@ -82,6 +82,8 @@ wrangler secret put BETTER_AUTH_SECRET
 wrangler secret put BETTER_AUTH_URL
 wrangler secret put DATABASE_URL
 wrangler secret put CORS_ORIGIN
+wrangler secret put GOOGLE_CLIENT_ID
+wrangler secret put GOOGLE_CLIENT_SECRET
 ```
 
 
