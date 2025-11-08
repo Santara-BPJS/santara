@@ -79,7 +79,7 @@ function RouteComponent() {
               {[
                 {
                   label: "Home",
-                  to: "/dashboard",
+                  to: "/dashboard/home",
                   icon: HomeIcon,
                 },
                 {
@@ -113,7 +113,7 @@ function RouteComponent() {
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.to}
+                      isActive={pathname.startsWith(item.to)}
                       size="lg"
                     >
                       <Link to={item.to}>
