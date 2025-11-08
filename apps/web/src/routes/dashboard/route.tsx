@@ -116,7 +116,7 @@ function RouteComponent() {
                       isActive={pathname.startsWith(item.to)}
                       size="lg"
                     >
-                      <Link to={item.to}>
+                      <Link preload="render" to={item.to}>
                         <Icon /> {item.label}
                       </Link>
                     </SidebarMenuButton>
