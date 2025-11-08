@@ -1,3 +1,5 @@
+import { SIZE_UNITS } from "@santara/utils";
+
 // File type categories
 export const IMAGE_TYPES = [
   "image/jpeg",
@@ -57,18 +59,15 @@ export type FileCategory =
   | "audio"
   | "other";
 
-const KB = 1024;
-const MB = KB * KB;
-
 const MAX_FILE_SIZE_MB = 100;
 const MAX_IMAGE_SIZE_MB = 10;
 const MAX_VIDEO_SIZE_MB = 100;
 const MAX_DOCUMENT_SIZE_MB = 25;
 
-export const MAX_FILE_SIZE_KB = MAX_FILE_SIZE_MB * MB;
-export const MAX_IMAGE_SIZE_KB = MAX_IMAGE_SIZE_MB * MB;
-export const MAX_VIDEO_SIZE_KB = MAX_VIDEO_SIZE_MB * MB;
-export const MAX_DOCUMENT_SIZE_KB = MAX_DOCUMENT_SIZE_MB * MB;
+export const MAX_FILE_SIZE_KB = MAX_FILE_SIZE_MB * SIZE_UNITS.MB;
+export const MAX_IMAGE_SIZE_KB = MAX_IMAGE_SIZE_MB * SIZE_UNITS.MB;
+export const MAX_VIDEO_SIZE_KB = MAX_VIDEO_SIZE_MB * SIZE_UNITS.MB;
+export const MAX_DOCUMENT_SIZE_KB = MAX_DOCUMENT_SIZE_MB * SIZE_UNITS.MB;
 
 // Validation helpers
 export function validateMimeType(mimeType: string): boolean {
@@ -110,9 +109,12 @@ export function getFileCategory(mimeType: string): FileCategory {
 }
 
 export function sanitizeFilename(filename: string): string {
-  // Remove or replace unsafe characters
+  // Remove or replace unsafe characters and remove mime type from filename
   return filename
     .replace(/[^a-zA-Z0-9.-]/g, "_")
     .replace(/_{2,}/g, "_")
-    .replace(/^_|_$/g, "");
+    .replace(/^_|_$/g, "")
+    .split(".")
+    .slice(0, -1)
+    .join(".");
 }
