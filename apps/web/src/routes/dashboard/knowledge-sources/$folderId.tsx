@@ -1,24 +1,27 @@
-import { CreateFolderDialog } from "@/features/knowledge-sources/components/create-folder-dialog";
-import { FolderCard } from "@/features/knowledge-sources/components/folder-card";
-import { Button } from "@/shared/components/ui/button";
 import { orpc } from "@/shared/utils/orpc";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Cloud, FolderIcon } from "lucide-react";
+import { FileIcon } from "lucide-react";
+import { FileCard } from "../../../features/knowledge-sources/components/file-card";
+import UploadFileButton from "../../../features/knowledge-sources/components/upload-file-button";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "../../shared/components/ui/empty";
+} from "../../../shared/components/ui/empty";
 
-export const Route = createFileRoute("/dashboard/knowledge-sources")({
+export const Route = createFileRoute("/dashboard/knowledge-sources/$folderId")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data } = useQuery(orpc.storage.folderRouter.findMany.queryOptions());
+  const { folderId } = Route.useParams();
+
+  const { data } = useQuery(
+    orpc.storage.fileRouter.findMany.queryOptions({ input: { folderId } })
+  );
 
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
@@ -30,31 +33,25 @@ function RouteComponent() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <CreateFolderDialog />
-          <Button variant="outline">
-            <Cloud />
-            Hubungkan Google Drive
-          </Button>
+          <UploadFileButton folderId={folderId} />
         </div>
       </div>
-
-      {data?.folders.length === 0 ? (
+      {data?.files.length === 0 ? (
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <FolderIcon />
+              <FileIcon />
             </EmptyMedia>
-            <EmptyTitle>Belum ada folder pengetahuan</EmptyTitle>
+            <EmptyTitle>Belum ada file</EmptyTitle>
             <EmptyDescription>
-              Buat folder pengetahuan pertama Anda untuk mulai mengelola dokumen
-              Anda.
+              Unggah file pertama Anda untuk mulai mengelola dokumen Anda.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data?.folders?.map((folder) => (
-            <FolderCard folder={folder} key={folder.id} />
+          {data?.files?.map((file) => (
+            <FileCard file={file} key={file.id} />
           ))}
         </div>
       )}
