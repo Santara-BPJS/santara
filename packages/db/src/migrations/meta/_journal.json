@@ -8,6 +8,13 @@
       "when": 1762522258750,
       "tag": "0000_tricky_groot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762597155594,
+      "tag": "0001_volatile_peter_quill",
+      "breakpoints": true
     }
   ]
 }
