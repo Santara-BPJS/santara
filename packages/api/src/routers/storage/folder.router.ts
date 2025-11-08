@@ -1,7 +1,7 @@
 import { ORPCError } from "@orpc/client";
 import { db, enums, schema } from "@santara/db";
 import { HTTP_STATUS_CODE, tryCatch } from "@santara/utils";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { o, protectedProcedure } from "../..";
 import {
@@ -34,7 +34,13 @@ export const folderRouter = o.prefix("/folders").router({
           })
           .from(schema.folder)
           .innerJoin(schema.user, eq(schema.folder.userId, schema.user.id))
-          .leftJoin(schema.file, eq(schema.folder.id, schema.file.folderId))
+          .leftJoin(
+            schema.file,
+            and(
+              eq(schema.folder.id, schema.file.folderId),
+              isNull(schema.file.deletedAt)
+            )
+          )
           .groupBy(
             schema.folder.id,
             schema.folder.name,
