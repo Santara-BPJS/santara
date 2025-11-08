@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Cloud, FolderIcon } from "lucide-react";
 import { FolderCardSkeleton } from "../../../features/knowledge-sources/components/folder-card";
+import { authClient } from "@/shared/lib/auth-client";
 
 export const Route = createFileRoute("/dashboard/knowledge-sources/")({
   component: RouteComponent,
@@ -34,7 +35,16 @@ function RouteComponent() {
         </div>
         <div className="flex items-center gap-2">
           <CreateFolderDialog />
-          <Button variant="outline">
+          <Button
+            onClick={async () => {
+              await authClient.linkSocial({
+                provider: "google",
+                scopes: ["https://www.googleapis.com/auth/drive.readonly"],
+                callbackURL: `${window.location.origin}/dashboard/knowledge-sources`,
+              });
+            }}
+            variant="outline"
+          >
             <Cloud />
             Hubungkan Google Drive
           </Button>
