@@ -22,10 +22,10 @@
       "persist": true
     }
   },
-  "routes": [
-    {
-      "pattern": "santara-api.ahargunyllib.dev",
-      "custom_domain": true
-    }
-  ]
+  // "routes": [
+  //   {
+  //     "pattern": "santara-api.ahargunyllib.dev",
+  //     "custom_domain": true
+  //   }
+  // ]
 }
