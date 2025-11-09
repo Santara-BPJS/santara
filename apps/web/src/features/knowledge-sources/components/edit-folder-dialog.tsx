@@ -7,14 +7,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
 import { dto } from "@santara/api";
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 import {
   Field,
@@ -27,10 +24,16 @@ import { orpc, queryClient } from "../../../shared/utils/orpc";
 type EditFolderDialogProps = {
   id: string;
   initialName: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 };
 
-export function EditFolderDialog({ id, initialName }: EditFolderDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function EditFolderDialog({
+  id,
+  initialName,
+  isOpen,
+  setIsOpen,
+}: EditFolderDialogProps) {
   const { mutateAsync } = useMutation(
     orpc.storage.folderRouter.update.mutationOptions()
   );
@@ -62,17 +65,6 @@ export function EditFolderDialog({ id, initialName }: EditFolderDialogProps) {
 
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
-      <DialogTrigger asChild>
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          size="icon-sm"
-          variant="ghost"
-        >
-          <Pencil className="size-4 text-green-600" />
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Folder</DialogTitle>

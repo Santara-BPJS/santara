@@ -8,9 +8,7 @@ import {
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useNavigate } from "@tanstack/react-router";
 import { FolderOpen } from "lucide-react";
-import { Button } from "../../../shared/components/ui/button";
-import { DeleteFolderDialog } from "./delete-folder-dialog";
-import { EditFolderDialog } from "./edit-folder-dialog";
+import FolderDropdownMenu from "./folder-dropdown-menu";
 
 type FolderCardProps = {
   folder: {
@@ -29,14 +27,13 @@ export function FolderCard({ folder }: FolderCardProps) {
   return (
     <Card
       className="relative cursor-pointer transition-colors hover:bg-accent/50"
-      onClick={() => {
+      onDoubleClick={() => {
         navigate({ to: `/dashboard/knowledge-sources/${folder.id}` });
       }}
     >
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <EditFolderDialog id={folder.id} initialName={folder.name} />
-          <DeleteFolderDialog id={folder.id} />
+          <FolderDropdownMenu folder={folder} />
         </div>
         <div className="mb-4">
           <FolderOpen className="size-12 text-green-600" />
@@ -58,12 +55,7 @@ export function FolderCardSkeleton() {
     <Card className="relative">
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <Button disabled size="icon-sm" variant="ghost">
-            <Skeleton className="size-4" />
-          </Button>
-          <Button disabled size="icon-sm" variant="ghost">
-            <Skeleton className="size-4" />
-          </Button>
+          <Skeleton className="size-8 rounded" />
         </div>
         <div className="mb-4">
           <Skeleton className="size-12" />

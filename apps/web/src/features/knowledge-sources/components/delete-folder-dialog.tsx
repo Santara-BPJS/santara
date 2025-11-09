@@ -7,19 +7,22 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/shared/components/ui/alert-dialog";
-import { Button } from "@/shared/components/ui/button";
 import { orpc, queryClient } from "@/shared/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type DeleteFolderDialogProps = {
   id: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 };
 
-export function DeleteFolderDialog({ id }: DeleteFolderDialogProps) {
+export function DeleteFolderDialog({
+  id,
+  isOpen,
+  setIsOpen,
+}: DeleteFolderDialogProps) {
   const { mutateAsync } = useMutation(
     orpc.storage.folderRouter.delete.mutationOptions()
   );
@@ -44,18 +47,7 @@ export function DeleteFolderDialog({ id }: DeleteFolderDialogProps) {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          size="icon-sm"
-          variant="ghost"
-        >
-          <Trash2 className="size-4 text-red-600" />
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Hapus Folder?</AlertDialogTitle>
