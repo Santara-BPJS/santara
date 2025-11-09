@@ -49,7 +49,7 @@ export function FolderCard({ folder }: FolderCardProps) {
         <div className="mb-4">
           <FolderOpen className="size-12 text-green-600" />
         </div>
-        <CardTitle className="text-xl">{folder.name}</CardTitle>
+        <CardTitle className="truncate text-xl">{folder.name}</CardTitle>
         <CardDescription>Dibuat oleh {folder.user.role}</CardDescription>
       </CardHeader>
       <CardContent>

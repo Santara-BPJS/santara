@@ -19,7 +19,7 @@ export function RecentUpdateItem({
       <FileTextIcon className="size-5 text-primary" />
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-base">{title}</h3>
+          <h3 className="truncate font-semibold text-base">{title}</h3>
           <Badge variant="secondary">{type}</Badge>
         </div>
         <p className="text-muted-foreground text-sm">{description}</p>

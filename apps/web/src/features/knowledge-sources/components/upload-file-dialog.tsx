@@ -71,7 +71,10 @@ export function UploadFileDialog({
         {
           loading: "Mengunggah file...",
           success: "File berhasil diunggah",
-          error: "Gagal mengunggah file. Silakan coba lagi.",
+          error: (e) => ({
+            message: "Gagal mengunggah file. Silakan coba lagi.",
+            description: e.message || "",
+          }),
         }
       );
       setIsOpen(false);
@@ -115,8 +118,10 @@ export function UploadFileDialog({
                         <FieldLabel htmlFor={field.name}>File</FieldLabel>
                         {selectedFile ? (
                           <div className="flex items-center justify-between gap-4 rounded-md border p-2">
-                            <div>
-                              <p className="font-medium">{selectedFile.name}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-medium">
+                                {selectedFile.name}
+                              </p>
                               <p className="text-muted-foreground text-sm">
                                 {formatFileSize(selectedFile.size)}
                               </p>
