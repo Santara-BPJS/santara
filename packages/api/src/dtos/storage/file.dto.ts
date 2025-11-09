@@ -39,6 +39,7 @@ export const deleteFileInputSchema = z.object({
 export const updateFileInputSchema = z.object({
   fileId: z.string(),
   // https://stackoverflow.com/questions/73715295/react-hook-form-with-zod-resolver-optional-field
+  name: z.union([z.string(), z.literal("")]),
   description: z.union([z.string(), z.literal("")]),
 });
 

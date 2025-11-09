@@ -193,13 +193,23 @@ export const fileRouter = o.prefix("/files").router({
     .input(updateFileInputSchema)
     .output(updateFileOutputSchema)
     .handler(async ({ input }) => {
+      const updateData: {
+        description: string | null;
+        updatedAt: Date;
+        name?: string;
+      } = {
+        description: input.description || null,
+        updatedAt: new Date(),
+      };
+
+      if (input.name) {
+        updateData.name = input.name;
+      }
+
       const { data: queryResult, error: updateError } = await tryCatch(
         db
           .update(schema.file)
-          .set({
-            description: input.description || null,
-            updatedAt: new Date(),
-          })
+          .set(updateData)
           .where(eq(schema.file.id, input.fileId))
       );
 

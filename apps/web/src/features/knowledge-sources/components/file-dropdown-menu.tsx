@@ -14,6 +14,7 @@ type FileDropdownMenuProps = {
   file: {
     id: string;
     folderId: string;
+    name: string;
     description?: string | null;
   };
 };
@@ -59,6 +60,7 @@ export default function FileDropdownMenu({ file }: FileDropdownMenuProps) {
 
       <EditFileDialog
         currentDescription={file.description}
+        currentName={file.name}
         fileId={file.id}
         folderId={file.folderId}
         isOpen={isShowEditDialog}

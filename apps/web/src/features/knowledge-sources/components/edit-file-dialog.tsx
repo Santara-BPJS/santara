@@ -14,6 +14,8 @@ import {
   FieldGroup,
   FieldSet,
 } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { dto } from "@santara/api";
 import { useForm } from "@tanstack/react-form";
@@ -26,6 +28,7 @@ type EditFileDialogProps = {
   folderId: string;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  currentName: string;
   currentDescription?: string | null | undefined;
 };
 
@@ -34,6 +37,7 @@ export function EditFileDialog({
   folderId,
   isOpen,
   setIsOpen,
+  currentName,
   currentDescription,
 }: EditFileDialogProps) {
   const { mutateAsync } = useMutation(
@@ -43,6 +47,7 @@ export function EditFileDialog({
   const form = useForm({
     defaultValues: {
       fileId,
+      name: currentName,
       description: currentDescription || "",
     },
     validators: {
@@ -50,19 +55,24 @@ export function EditFileDialog({
     },
     onSubmit: async ({ value }) => {
       await mutateAsync(
-        { ...value, description: value.description?.trim() },
+        {
+          ...value,
+          name: value.name.trim(),
+          description: value.description?.trim(),
+        },
         {
           onSuccess: () => {
-            toast.success("Deskripsi berhasil diperbarui");
+            toast.success("File berhasil diperbarui");
             queryClient.invalidateQueries({
               queryKey: orpc.storage.fileRouter.findMany.queryKey({
                 input: { folderId },
               }),
             });
+            form.reset();
             setIsOpen(false);
           },
           onError: (ctx) => {
-            toast.error("Gagal memperbarui deskripsi", {
+            toast.error("Gagal memperbarui file", {
               description: ctx.message || "Silakan coba lagi.",
             });
           },
@@ -80,9 +90,9 @@ export function EditFileDialog({
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Deskripsi File</DialogTitle>
+          <DialogTitle>Edit File</DialogTitle>
           <DialogDescription>
-            Perbarui deskripsi untuk file ini
+            Perbarui nama dan deskripsi untuk file ini
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -96,12 +106,36 @@ export function EditFileDialog({
           >
             <FieldSet>
               <FieldGroup>
+                <form.Field name="name">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Label htmlFor={field.name}>Nama File</Label>
+                        <Input
+                          aria-invalid={isInvalid}
+                          id={field.name}
+                          name={field.name}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Masukkan nama file..."
+                          value={field.state.value}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
                 <form.Field name="description">
                   {(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid}>
+                        <Label htmlFor={field.name}>Deskripsi</Label>
                         <Textarea
                           aria-invalid={isInvalid}
                           id={field.name}
