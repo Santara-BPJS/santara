@@ -16,6 +16,8 @@ import {
   deleteFileInputSchema,
   listFilesInputSchema,
   listFilesOutputSchema,
+  updateFileInputSchema,
+  updateFileOutputSchema,
 } from "../../dtos";
 
 export const fileRouter = o.prefix("/files").router({
@@ -133,6 +135,7 @@ export const fileRouter = o.prefix("/files").router({
           userId: context.session.user.id,
           path: uploadData.path,
           url: uploadData.url,
+          description: input.description || null,
         })
       );
       if (dbError) {
@@ -180,5 +183,43 @@ export const fileRouter = o.prefix("/files").router({
       }
 
       return;
+    }),
+  update: protectedProcedure
+    .route({
+      method: "PUT",
+      path: "/{fileId}",
+      description: "Update file metadata",
+    })
+    .input(updateFileInputSchema)
+    .output(updateFileOutputSchema)
+    .handler(async ({ input }) => {
+      const { data: queryResult, error: updateError } = await tryCatch(
+        db
+          .update(schema.file)
+          .set({
+            description: input.description || null,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.file.id, input.fileId))
+      );
+
+      if (updateError) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to update file",
+          cause: updateError,
+          data: input,
+        });
+      }
+
+      if (queryResult.rowCount === 0) {
+        throw new ORPCError("NOT_FOUND", {
+          status: HTTP_STATUS_CODE.NOT_FOUND,
+          message: "File not found",
+          data: input,
+        });
+      }
+
+      return { success: true };
     }),
 });

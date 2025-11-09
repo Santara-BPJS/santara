@@ -14,12 +14,14 @@ export const fileResponseSchema = z.object({
   folderId: z.string(),
   // looseen type for category to allow for future categories
   category: z.string(),
+  description: z.string().nullable(),
   deletedAt: z.date().nullable(),
 });
 
 export const createFileInputSchema = z.object({
   file: z.instanceof(File),
   folderId: z.string(),
+  description: z.union([z.string(), z.literal("")]),
 });
 
 export const listFilesInputSchema = z.object({
@@ -32,4 +34,14 @@ export const listFilesOutputSchema = z.object({
 
 export const deleteFileInputSchema = z.object({
   fileId: z.string(),
+});
+
+export const updateFileInputSchema = z.object({
+  fileId: z.string(),
+  // https://stackoverflow.com/questions/73715295/react-hook-form-with-zod-resolver-optional-field
+  description: z.union([z.string(), z.literal("")]),
+});
+
+export const updateFileOutputSchema = z.object({
+  success: z.boolean(),
 });
