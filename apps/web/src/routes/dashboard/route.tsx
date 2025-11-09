@@ -3,7 +3,6 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  redirect,
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
@@ -34,6 +33,7 @@ import {
 } from "../../shared/components/ui/sidebar";
 import SantaraLogo from "../../shared/components/santara-logo";
 import UserMenu from "../../shared/components/user-menu";
+import { redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
