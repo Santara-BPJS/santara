@@ -1,4 +1,3 @@
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -16,7 +15,7 @@ import {
   FileTextIcon,
 } from "lucide-react";
 import { useMemo } from "react";
-import { DeleteFileDialog } from "./delete-file-dialog";
+import FileDropdownMenu from "./file-dropdown-menu";
 
 type FileCardProps = {
   file: {
@@ -37,6 +36,7 @@ type FileCardProps = {
     path: string;
     size: number;
     mimeType: string;
+    description?: string | null;
     createdAt: Date;
     folderId: string;
   };
@@ -59,7 +59,7 @@ export function FileCard({ file }: FileCardProps) {
     <Card className="relative">
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <DeleteFileDialog folderId={file.folderId} id={file.id} />
+          <FileDropdownMenu file={file} />
         </div>
         <div className="mb-4">
           <Icon className="size-12 text-green-600" />
@@ -74,6 +74,11 @@ export function FileCard({ file }: FileCardProps) {
             month: "2-digit",
           })}
         </CardDescription>
+        {file.description && (
+          <p className="mt-2 line-clamp-2 text-muted-foreground text-sm">
+            {file.description}
+          </p>
+        )}
       </CardHeader>
     </Card>
   );
@@ -84,12 +89,10 @@ export function FileCardSkeleton() {
     <Card className="relative">
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <Button disabled size="icon-sm" variant="ghost">
-            <Skeleton className="size-4" />
-          </Button>
+          <Skeleton className="size-8 rounded" />
         </div>
         <div className="mb-4">
-          <Skeleton className="size-12" />
+          <Skeleton className="size-12 rounded" />
         </div>
         <CardTitle>
           <Skeleton className="h-6 w-3/4" />

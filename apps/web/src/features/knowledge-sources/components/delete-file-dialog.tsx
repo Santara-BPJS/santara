@@ -7,20 +7,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/shared/components/ui/alert-dialog";
-import { Button } from "@/shared/components/ui/button";
 import { orpc, queryClient } from "@/shared/utils/orpc";
 import { useMutation } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type DeleteFileDialogProps = {
   id: string;
   folderId: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 };
 
-export function DeleteFileDialog({ id, folderId }: DeleteFileDialogProps) {
+export function DeleteFileDialog({
+  id,
+  folderId,
+  isOpen,
+  setIsOpen,
+}: DeleteFileDialogProps) {
   const { mutateAsync } = useMutation(
     orpc.storage.fileRouter.delete.mutationOptions()
   );
@@ -36,6 +40,7 @@ export function DeleteFileDialog({ id, folderId }: DeleteFileDialogProps) {
               input: { folderId },
             }),
           });
+          setIsOpen(false);
         },
         onError: (ctx) => {
           toast.error("Gagal menghapus file", {
@@ -47,18 +52,7 @@ export function DeleteFileDialog({ id, folderId }: DeleteFileDialogProps) {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          size="icon-sm"
-          variant="ghost"
-        >
-          <Trash2 className="size-4 text-red-600" />
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog onOpenChange={setIsOpen} open={isOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Hapus File?</AlertDialogTitle>
