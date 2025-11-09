@@ -71,11 +71,9 @@ function RouteComponent() {
         <h1 className="font-bold text-3xl">
           Selamat datang,{" "}
           {isPending ? (
-            <Skeleton className="w-32" />
+            <Skeleton className="w-48" />
           ) : (
-            <span className="text-primary">
-              {data?.user.name.split(" ")[0]}
-            </span>
+            <span className="text-primary">{data?.user.name}</span>
           )}
         </h1>
         <p className="text-muted-foreground">
