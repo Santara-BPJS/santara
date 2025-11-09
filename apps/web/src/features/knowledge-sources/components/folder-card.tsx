@@ -24,12 +24,23 @@ type FolderCardProps = {
 
 export function FolderCard({ folder }: FolderCardProps) {
   const navigate = useNavigate();
+
+  const onNavigateToDetail = () => {
+    navigate({ to: `/dashboard/knowledge-sources/${folder.id}` });
+  };
+
   return (
     <Card
-      className="relative cursor-pointer transition-colors hover:bg-accent/50"
+      className="relative cursor-pointer transition-colors hover:bg-accent/50 focus-visible:border-primary"
       onDoubleClick={() => {
-        navigate({ to: `/dashboard/knowledge-sources/${folder.id}` });
+        onNavigateToDetail();
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onNavigateToDetail();
+        }
+      }}
+      tabIndex={0}
     >
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
