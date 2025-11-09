@@ -84,11 +84,7 @@ SERVER_URL={your-production-server-domain}
 - Put your server production secret from `.env` file in your Cloudflare Workers secrets:
 
 ```bash
-wrangler secret put BETTER_AUTH_SECRET
-wrangler secret put BETTER_AUTH_URL
-wrangler secret put DATABASE_URL
-wrangler secret put GOOGLE_CLIENT_ID
-wrangler secret put GOOGLE_CLIENT_SECRET
+wrangler secret put <key>
 ```
 
 - Update CORS settings in `apps/server/src/index.ts` to allow requests from your production web domain:
