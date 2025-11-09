@@ -1,4 +1,3 @@
-import { Button } from "@/shared/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,60 +5,81 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
-import { FolderOpen, Pencil, Trash2 } from "lucide-react";
-import type { Folder } from "../types";
+import { Skeleton } from "@/shared/components/ui/skeleton";
+import { useNavigate } from "@tanstack/react-router";
+import { FolderOpen } from "lucide-react";
+import FolderDropdownMenu from "./folder-dropdown-menu";
 
 type FolderCardProps = {
-  folder: Folder;
-  onClick: (folderId: string) => void;
-  onEdit: (folder: Folder) => void;
-  onDelete: (folderId: string) => void;
+  folder: {
+    id: string;
+    name: string;
+    user: {
+      id: string;
+      role: string;
+    };
+    fileCount: number;
+  };
 };
 
-export function FolderCard({
-  folder,
-  onClick,
-  onEdit,
-  onDelete,
-}: FolderCardProps) {
+export function FolderCard({ folder }: FolderCardProps) {
+  const navigate = useNavigate();
+
+  const onNavigateToDetail = () => {
+    navigate({ to: `/dashboard/knowledge-sources/${folder.id}` });
+  };
+
   return (
     <Card
-      className="relative cursor-pointer transition-colors hover:bg-accent/50"
-      onClick={() => onClick(folder.id)}
+      className="relative cursor-pointer transition-colors hover:bg-accent/50 focus-visible:border-primary"
+      onDoubleClick={() => {
+        onNavigateToDetail();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          onNavigateToDetail();
+        }
+      }}
+      tabIndex={0}
     >
       <CardHeader>
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(folder);
-            }}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <Pencil className="size-4 text-green-600" />
-          </Button>
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(folder.id);
-            }}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <Trash2 className="size-4 text-red-600" />
-          </Button>
+          <FolderDropdownMenu folder={folder} />
         </div>
         <div className="mb-4">
           <FolderOpen className="size-12 text-green-600" />
         </div>
         <CardTitle className="text-xl">{folder.name}</CardTitle>
-        <CardDescription>Dibuat oleh {folder.createdBy}</CardDescription>
+        <CardDescription>Dibuat oleh {folder.user.role}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="font-medium text-green-600 text-sm">
           {folder.fileCount} file
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function FolderCardSkeleton() {
+  return (
+    <Card className="relative">
+      <CardHeader>
+        <div className="absolute top-4 right-4 flex items-center gap-1">
+          <Skeleton className="size-8 rounded" />
+        </div>
+        <div className="mb-4">
+          <Skeleton className="size-12" />
+        </div>
+        <CardTitle>
+          <Skeleton className="h-6 w-3/4" />
+        </CardTitle>
+        <CardDescription>
+          <Skeleton className="h-4 w-1/2" />
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-5 w-1/4" />
       </CardContent>
     </Card>
   );

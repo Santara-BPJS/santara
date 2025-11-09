@@ -13,12 +13,13 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardWhatsappBotRouteImport } from './routes/dashboard/whatsapp-bot'
 import { Route as DashboardUserManagementRouteImport } from './routes/dashboard/user-management'
-import { Route as DashboardKnowledgeSourcesRouteImport } from './routes/dashboard/knowledge-sources'
+import { Route as DashboardHomeRouteImport } from './routes/dashboard/home'
 import { Route as DashboardChatRouteImport } from './routes/dashboard/chat'
 import { Route as DashboardAiAgentRouteImport } from './routes/dashboard/ai-agent'
+import { Route as DashboardKnowledgeSourcesIndexRouteImport } from './routes/dashboard/knowledge-sources/index'
+import { Route as DashboardKnowledgeSourcesFolderIdRouteImport } from './routes/dashboard/knowledge-sources/$folderId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -40,11 +41,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRouteRoute,
-} as any)
 const DashboardWhatsappBotRoute = DashboardWhatsappBotRouteImport.update({
   id: '/whatsapp-bot',
   path: '/whatsapp-bot',
@@ -55,12 +51,11 @@ const DashboardUserManagementRoute = DashboardUserManagementRouteImport.update({
   path: '/user-management',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const DashboardKnowledgeSourcesRoute =
-  DashboardKnowledgeSourcesRouteImport.update({
-    id: '/knowledge-sources',
-    path: '/knowledge-sources',
-    getParentRoute: () => DashboardRouteRoute,
-  } as any)
+const DashboardHomeRoute = DashboardHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardChatRoute = DashboardChatRouteImport.update({
   id: '/chat',
   path: '/chat',
@@ -71,6 +66,18 @@ const DashboardAiAgentRoute = DashboardAiAgentRouteImport.update({
   path: '/ai-agent',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardKnowledgeSourcesIndexRoute =
+  DashboardKnowledgeSourcesIndexRouteImport.update({
+    id: '/knowledge-sources/',
+    path: '/knowledge-sources/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardKnowledgeSourcesFolderIdRoute =
+  DashboardKnowledgeSourcesFolderIdRouteImport.update({
+    id: '/knowledge-sources/$folderId',
+    path: '/knowledge-sources/$folderId',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -79,21 +86,24 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/dashboard/ai-agent': typeof DashboardAiAgentRoute
   '/dashboard/chat': typeof DashboardChatRoute
-  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/home': typeof DashboardHomeRoute
   '/dashboard/user-management': typeof DashboardUserManagementRoute
   '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/knowledge-sources/$folderId': typeof DashboardKnowledgeSourcesFolderIdRoute
+  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/dashboard/ai-agent': typeof DashboardAiAgentRoute
   '/dashboard/chat': typeof DashboardChatRoute
-  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/home': typeof DashboardHomeRoute
   '/dashboard/user-management': typeof DashboardUserManagementRoute
   '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
-  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/knowledge-sources/$folderId': typeof DashboardKnowledgeSourcesFolderIdRoute
+  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,10 +113,11 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/dashboard/ai-agent': typeof DashboardAiAgentRoute
   '/dashboard/chat': typeof DashboardChatRoute
-  '/dashboard/knowledge-sources': typeof DashboardKnowledgeSourcesRoute
+  '/dashboard/home': typeof DashboardHomeRoute
   '/dashboard/user-management': typeof DashboardUserManagementRoute
   '/dashboard/whatsapp-bot': typeof DashboardWhatsappBotRoute
-  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/knowledge-sources/$folderId': typeof DashboardKnowledgeSourcesFolderIdRoute
+  '/dashboard/knowledge-sources/': typeof DashboardKnowledgeSourcesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,21 +128,24 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/ai-agent'
     | '/dashboard/chat'
-    | '/dashboard/knowledge-sources'
+    | '/dashboard/home'
     | '/dashboard/user-management'
     | '/dashboard/whatsapp-bot'
-    | '/dashboard/'
+    | '/dashboard/knowledge-sources/$folderId'
+    | '/dashboard/knowledge-sources'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/login'
     | '/register'
     | '/dashboard/ai-agent'
     | '/dashboard/chat'
-    | '/dashboard/knowledge-sources'
+    | '/dashboard/home'
     | '/dashboard/user-management'
     | '/dashboard/whatsapp-bot'
-    | '/dashboard'
+    | '/dashboard/knowledge-sources/$folderId'
+    | '/dashboard/knowledge-sources'
   id:
     | '__root__'
     | '/'
@@ -140,10 +154,11 @@ export interface FileRouteTypes {
     | '/register'
     | '/dashboard/ai-agent'
     | '/dashboard/chat'
-    | '/dashboard/knowledge-sources'
+    | '/dashboard/home'
     | '/dashboard/user-management'
     | '/dashboard/whatsapp-bot'
-    | '/dashboard/'
+    | '/dashboard/knowledge-sources/$folderId'
+    | '/dashboard/knowledge-sources/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,13 +198,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
     '/dashboard/whatsapp-bot': {
       id: '/dashboard/whatsapp-bot'
       path: '/whatsapp-bot'
@@ -204,11 +212,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUserManagementRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/dashboard/knowledge-sources': {
-      id: '/dashboard/knowledge-sources'
-      path: '/knowledge-sources'
-      fullPath: '/dashboard/knowledge-sources'
-      preLoaderRoute: typeof DashboardKnowledgeSourcesRouteImport
+    '/dashboard/home': {
+      id: '/dashboard/home'
+      path: '/home'
+      fullPath: '/dashboard/home'
+      preLoaderRoute: typeof DashboardHomeRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/chat': {
@@ -225,25 +233,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAiAgentRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/knowledge-sources/': {
+      id: '/dashboard/knowledge-sources/'
+      path: '/knowledge-sources'
+      fullPath: '/dashboard/knowledge-sources'
+      preLoaderRoute: typeof DashboardKnowledgeSourcesIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/knowledge-sources/$folderId': {
+      id: '/dashboard/knowledge-sources/$folderId'
+      path: '/knowledge-sources/$folderId'
+      fullPath: '/dashboard/knowledge-sources/$folderId'
+      preLoaderRoute: typeof DashboardKnowledgeSourcesFolderIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
 interface DashboardRouteRouteChildren {
   DashboardAiAgentRoute: typeof DashboardAiAgentRoute
   DashboardChatRoute: typeof DashboardChatRoute
-  DashboardKnowledgeSourcesRoute: typeof DashboardKnowledgeSourcesRoute
+  DashboardHomeRoute: typeof DashboardHomeRoute
   DashboardUserManagementRoute: typeof DashboardUserManagementRoute
   DashboardWhatsappBotRoute: typeof DashboardWhatsappBotRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardKnowledgeSourcesFolderIdRoute: typeof DashboardKnowledgeSourcesFolderIdRoute
+  DashboardKnowledgeSourcesIndexRoute: typeof DashboardKnowledgeSourcesIndexRoute
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAiAgentRoute: DashboardAiAgentRoute,
   DashboardChatRoute: DashboardChatRoute,
-  DashboardKnowledgeSourcesRoute: DashboardKnowledgeSourcesRoute,
+  DashboardHomeRoute: DashboardHomeRoute,
   DashboardUserManagementRoute: DashboardUserManagementRoute,
   DashboardWhatsappBotRoute: DashboardWhatsappBotRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardKnowledgeSourcesFolderIdRoute:
+    DashboardKnowledgeSourcesFolderIdRoute,
+  DashboardKnowledgeSourcesIndexRoute: DashboardKnowledgeSourcesIndexRoute,
 }
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(

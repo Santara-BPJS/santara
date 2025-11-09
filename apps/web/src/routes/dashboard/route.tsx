@@ -18,6 +18,7 @@ import {
   ZapIcon,
 } from "lucide-react";
 import { Input } from "../../shared/components/ui/input";
+import { Separator } from "../../shared/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -29,12 +30,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from "../../shared/components/ui/sidebar";
 import UserMenu from "../../shared/components/user-menu";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
   beforeLoad: async () => {
+    // Check authentication first
     const session = await authClient.getSession();
     if (!session.data) {
       redirect({
@@ -42,7 +45,19 @@ export const Route = createFileRoute("/dashboard")({
         throw: true,
       });
     }
+
     return { session };
+  },
+  loader: ({ location }) => {
+    if (
+      location.pathname === "/dashboard" ||
+      location.pathname === "/dashboard/"
+    ) {
+      redirect({
+        to: "/dashboard/home",
+        throw: true,
+      });
+    }
   },
 });
 
@@ -67,7 +82,7 @@ function RouteComponent() {
               {[
                 {
                   label: "Home",
-                  to: "/dashboard",
+                  to: "/dashboard/home",
                   icon: HomeIcon,
                 },
                 {
@@ -101,10 +116,10 @@ function RouteComponent() {
                   <SidebarMenuItem key={item.to}>
                     <SidebarMenuButton
                       asChild
-                      isActive={pathname === item.to}
+                      isActive={pathname.startsWith(item.to)}
                       size="lg"
                     >
-                      <Link to={item.to}>
+                      <Link preload="render" to={item.to}>
                         <Icon /> {item.label}
                       </Link>
                     </SidebarMenuButton>
@@ -139,13 +154,20 @@ function RouteComponent() {
       </Sidebar>
       <SidebarInset className="[--header-height:4rem]">
         <header className="sticky top-0 flex h-(--header-height) shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-          <div className="relative w-sm">
-            <Input
-              className="peer ps-9"
-              placeholder="Tekan '/' untuk mencari"
+          <div className="flex flex-row items-center gap-2">
+            <SidebarTrigger className="size-9" />
+            <Separator
+              className="mr-2 data-[orientation=vertical]:h-8"
+              orientation="vertical"
             />
-            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
-              <SearchIcon aria-hidden="true" size={16} />
+            <div className="relative w-sm">
+              <Input
+                className="peer ps-9"
+                placeholder="Tekan '/' untuk mencari"
+              />
+              <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+                <SearchIcon aria-hidden="true" size={16} />
+              </div>
             </div>
           </div>
           <UserMenu />

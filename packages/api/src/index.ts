@@ -17,3 +17,5 @@ const requireAuth = o.middleware(({ context, next }) => {
 });
 
 export const protectedProcedure = publicProcedure.use(requireAuth);
+
+export * as dto from "./dtos";

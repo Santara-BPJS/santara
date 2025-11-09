@@ -41,6 +41,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/**"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off"
+          }
+        }
+      }
     }
   ]
 }

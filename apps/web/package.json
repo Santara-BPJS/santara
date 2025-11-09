@@ -45,6 +45,7 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@santara/api": "workspace:*",
     "@santara/auth": "workspace:*",
+    "@santara/utils": "workspace:*",
     "@tailwindcss/vite": "^4.0.15",
     "@tanstack/react-form": "^1.12.3",
     "@tanstack/react-query": "^5.85.5",
