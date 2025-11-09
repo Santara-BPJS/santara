@@ -64,7 +64,7 @@ export function FileCard({ file }: FileCardProps) {
         <div className="mb-4">
           <Icon className="size-12 text-green-600" />
         </div>
-        <CardTitle className="text-xl">{file.name}</CardTitle>
+        <CardTitle className="truncate text-xl">{file.name}</CardTitle>
         <CardDescription>
           {size} -{" "}
           {file.createdAt.toLocaleDateString("id-ID", {
