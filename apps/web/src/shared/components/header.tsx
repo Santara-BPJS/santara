@@ -1,5 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import SantaraLogo from "./santara-logo";
 
 export default function Header() {
   const handleScroll = (elementId: string) => {
@@ -13,7 +14,7 @@ export default function Header() {
     <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md">
       <div className="container mx-auto flex items-center justify-between py-4">
         <Link className="flex items-center gap-2 font-bold text-xl" to="/">
-          <div className="h-8 w-8 rounded-full bg-primary" />
+          <SantaraLogo size={32} />
           <span>Santara</span>
         </Link>
 

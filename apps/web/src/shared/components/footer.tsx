@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import SantaraLogo from "./santara-logo";
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
           <div className="grid gap-8 md:grid-cols-4">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-6 rounded-full bg-primary" />
+                <SantaraLogo size={24} />
                 <span className="font-bold text-lg">Santara</span>
               </div>
               <p className="font-medium text-primary text-sm">

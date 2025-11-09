@@ -16,6 +16,7 @@ import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
+import SantaraLogo from "../../../shared/components/santara-logo";
 
 export function RegisterForm() {
   const navigate = useNavigate();
@@ -95,7 +96,7 @@ export function RegisterForm() {
             <FieldSet>
               <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <div className="size-12 rounded-full bg-primary" />
+                  <SantaraLogo size={48} />
                   <h1 className="font-bold text-xl">Daftar ke Santara</h1>
                   <FieldDescription>
                     Mulai akses pengetahuan terverifikasi hari ini

@@ -32,6 +32,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "../../shared/components/ui/sidebar";
+import SantaraLogo from "../../shared/components/santara-logo";
 import UserMenu from "../../shared/components/user-menu";
 
 export const Route = createFileRoute("/dashboard")({
@@ -72,7 +73,7 @@ function RouteComponent() {
       <Sidebar>
         <SidebarHeader className="flex h-16 justify-center border-b">
           <Link className="flex items-center gap-2 font-bold text-xl" to="/">
-            <div className="h-8 w-8 rounded-full bg-primary" />
+            <SantaraLogo size={32} />
             <span>Santara</span>
           </Link>
         </SidebarHeader>
