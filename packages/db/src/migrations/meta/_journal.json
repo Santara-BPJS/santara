@@ -15,6 +15,13 @@
       "when": 1762597155594,
       "tag": "0001_volatile_peter_quill",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762619668391,
+      "tag": "0002_colorful_speedball",
+      "breakpoints": true
     }
   ]
 }

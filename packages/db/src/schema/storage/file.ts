@@ -10,6 +10,7 @@ export const file = pgTable("file", {
   size: integer("size").notNull(),
   path: text("path").notNull(),
   url: text("url").notNull(),
+  description: text("description"),
   folderId: text("folder_id")
     .references(() => folder.id, {
       onDelete: "cascade",
