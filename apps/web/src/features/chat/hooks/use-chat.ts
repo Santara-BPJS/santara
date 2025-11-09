@@ -1,11 +1,51 @@
 import { useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { createORPCClient } from "@orpc/client";
+import { RPCLink } from "@orpc/client/fetch";
+import type { AppRouterClient } from "@santara/api/routers/index";
 import type { Message } from "../types";
 
 export function useChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationId, setConversationId] = useState<string>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Create oRPC client
+  const link = new RPCLink({
+    url: `${import.meta.env.VITE_SERVER_URL}/rpc`,
+    fetch(url, options) {
+      return fetch(url, {
+        ...options,
+        credentials: "include",
+      });
+    },
+  });
+
+  const _client: AppRouterClient = createORPCClient(link);
+
+  const chatMutation = useMutation({
+    mutationFn: async (data: { message: string; conversationId?: string }) => {
+      // Use local AI service directly for chat
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: data.message,
+          conversation_id: data.conversationId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI API error: ${response.statusText}`);
+      }
+
+      return response.json();
+    },
+  });
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
   useEffect(() => {
@@ -16,7 +56,7 @@ export function useChat() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim() || isLoading) {
       return;
     }
@@ -29,39 +69,45 @@ export function useChat() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
-    // Simulate assistant response
-    setTimeout(() => {
+    try {
+      const response = await chatMutation.mutateAsync({
+        message: currentInput,
+        conversationId,
+      });
+
+      if (response.conversation_id && !conversationId) {
+        setConversationId(response.conversation_id);
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content:
-          "Proses verifikasi klaim rawat inap memerlukan beberapa dokumen penting yang harus disiapkan. Setiap klaim harus diperiksa kelengkapan administratifnya, termasuk dokumen pendukung seperti surat rujukan, riwayat rawat inap, dan rincian biaya medis.\n\nKepatuhan terhadap regulasi adalah prioritas utama dalam setiap proses verifikasi. Tim Anda harus memastikan bahwa setiap keputusan didokumentasikan dengan baik dan dapat dipertanggungjawabkan.\n\nUntuk klaim-klaim kompleks atau yang memerlukan klarifikasi lebih lanjut, hubungi provider secara langsung dan minta penjelasan detail mengenai prosedur atau biaya yang dipertanyakan.",
+        content: response.answer,
         sender: "assistant",
         timestamp: new Date(),
-        sources: [
-          {
-            id: "1",
-            title: "Pasal 19 Peraturan Menteri Kesehatan No. 28/2014",
-            filename: "PMK_28_2014.pdf",
-          },
-          {
-            id: "2",
-            title: "SOP Verifikasi Klaim Rawat Inap - Edisi 3 2024",
-            filename: "SOP_Verifikasi_2024.pdf",
-          },
-          {
-            id: "3",
-            title: "SE No. 5/2025 Klarifikasi Penolakan Klaim",
-            filename: "SE_5_2025.pdf",
-          },
-        ],
+        sources: response.sources.map((source) => ({
+          id: source.id,
+          title: source.title,
+          filename: source.filename,
+        })),
       };
+
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (_error) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "Maaf, terjadi kesalahan. Silakan coba lagi.",
+        sender: "assistant",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-      // biome-ignore lint/style/noMagicNumbers: temporary simulation
-    }, 1000);
+    }
   };
 
   return {
@@ -71,5 +117,6 @@ export function useChat() {
     isLoading,
     messagesEndRef,
     handleSendMessage,
+    conversationId,
   };
 }

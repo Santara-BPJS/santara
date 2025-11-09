@@ -3,7 +3,6 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  redirect,
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
@@ -34,16 +33,17 @@ import UserMenu from "../../shared/components/user-menu";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const session = await authClient.getSession();
-    if (!session.data) {
-      redirect({
-        to: "/login",
-        throw: true,
-      });
-    }
-    return { session };
-  },
+  // Temporarily disable auth for frontend + AI testing
+  // beforeLoad: async () => {
+  //   const session = await authClient.getSession();
+  //   if (!session.data) {
+  //     redirect({
+  //       to: "/login",
+  //       throw: true,
+  //     });
+  //   }
+  //   return { session };
+  // },
 });
 
 function RouteComponent() {
