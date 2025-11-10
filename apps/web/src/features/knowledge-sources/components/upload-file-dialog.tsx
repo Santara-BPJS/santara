@@ -88,8 +88,17 @@ export function UploadFileDialog({
     setIsOpen(false);
   };
 
+  const onOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+      return;
+    }
+
+    setIsOpen(open);
+  };
+
   return (
-    <Dialog onOpenChange={handleClose} open={isOpen}>
+    <Dialog onOpenChange={onOpenChange} open={isOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Unggah File</DialogTitle>
@@ -131,6 +140,7 @@ export function UploadFileDialog({
                                 setSelectedFile(null);
                                 field.handleChange(new File([], ""));
                               }}
+                              type="button"
                               variant="ghost"
                             >
                               <XIcon />
@@ -156,6 +166,7 @@ export function UploadFileDialog({
                               };
                               input.click();
                             }}
+                            type="button"
                             variant="outline"
                           >
                             <UploadIcon className="mr-2 size-4" />
