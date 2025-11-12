@@ -1,24 +1,12 @@
 import { InviteUserDialog } from "@/features/user-management/components/invite-user-dialog";
-import { UserTable } from "@/features/user-management/components/user-table";
-import { useUserManagement } from "@/features/user-management/hooks/use-user-management";
 import { createFileRoute } from "@tanstack/react-router";
+import UserTableContainer from "../../features/user-management/containers/user-table-container";
 
 export const Route = createFileRoute("/dashboard/user-management")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const {
-    users,
-    isInviteDialogOpen,
-    setIsInviteDialogOpen,
-    inviteEmail,
-    setInviteEmail,
-    handleInvite,
-    handleEdit,
-    handleDelete,
-  } = useUserManagement();
-
   return (
     <div className="flex h-full grow flex-col gap-6 p-4">
       <div className="flex items-center justify-between">
@@ -28,16 +16,10 @@ function RouteComponent() {
             Kelola anggota tim, izin akses, dan sumber pengetahuan
           </p>
         </div>
-        <InviteUserDialog
-          email={inviteEmail}
-          onEmailChange={setInviteEmail}
-          onOpenChange={setIsInviteDialogOpen}
-          onSubmit={handleInvite}
-          open={isInviteDialogOpen}
-        />
+        <InviteUserDialog />
       </div>
 
-      <UserTable onDelete={handleDelete} onEdit={handleEdit} users={users} />
+      <UserTableContainer />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -11,23 +12,9 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { UserPlus } from "lucide-react";
 
-type InviteUserDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  email: string;
-  onEmailChange: (email: string) => void;
-  onSubmit: () => void;
-};
-
-export function InviteUserDialog({
-  open,
-  onOpenChange,
-  email,
-  onEmailChange,
-  onSubmit,
-}: InviteUserDialogProps) {
+export function InviteUserDialog() {
   return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
+    <Dialog>
       <DialogTrigger asChild>
         <Button>
           <UserPlus />
@@ -42,18 +29,15 @@ export function InviteUserDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Input
-            onChange={(e) => onEmailChange(e.target.value)}
-            placeholder="Email anggota"
-            type="email"
-            value={email}
-          />
+          <Input placeholder="Email anggota" type="email" />
         </div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} variant="outline">
-            Batal
-          </Button>
-          <Button onClick={onSubmit}>Kirim Undangan</Button>
+          <DialogClose asChild>
+            <Button variant="outline">Batal</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button>Kirim Undangan</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
