@@ -1,9 +1,12 @@
 import { ChatEmptyState } from "@/features/chat/components/chat-empty-state";
 import { ChatInput } from "@/features/chat/components/chat-input";
 import { ChatMessage } from "@/features/chat/components/chat-message";
-import { useChat } from "@/features/chat/hooks/use-chat";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import type { Message } from "../../features/chat/types";
+import { orpc } from "../../shared/utils/orpc";
 
 type ChatSearchParams = {
   q?: string;
@@ -18,15 +21,66 @@ export const Route = createFileRoute("/dashboard/chat")({
 
 function RouteComponent() {
   const { q } = Route.useSearch();
-  const {
-    messages,
-    input,
-    setInput,
-    isLoading,
-    messagesEndRef,
-    handleSendMessage,
-  } = useChat();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const { mutate: sendMessage, isPending } = useMutation(
+    orpc.chat.sendMessage.mutationOptions()
+  );
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const handleSendMessage = () => {
+    const query = input.trim();
+    if (!query) {
+      return;
+    }
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      content: query,
+      sender: "user",
+      createdAt: new Date(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+    sendMessage(
+      {
+        message: query,
+        conversationId: conversationId || undefined,
+      },
+      {
+        onSuccess: (data) => {
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            content: data.answer,
+            sender: "assistant",
+            createdAt: new Date(),
+            sources: data.sources.map((source) => ({
+              id: source.id,
+              title: source.title,
+              filename: source.filename,
+            })),
+          };
+          setMessages((prevMessages) => [...prevMessages, assistantMessage]);
+          setConversationId(data.conversationId);
+          setInput("");
+        },
+        onError: (error) => {
+          toast.error("Gagal mengirim pesan", {
+            description: error.message,
+          });
+        },
+      }
+    );
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
   useEffect(() => {
     if (q && messages.length === 0) {
       setInput(q);
@@ -36,6 +90,7 @@ function RouteComponent() {
         // biome-ignore lint/style/noMagicNumbers: false positive
       }, 100);
     }
+    // biome-ignore lint/correctness/useExhaustiveDependencies: false positive
   }, [q, messages.length, setInput, handleSendMessage]);
 
   return (
@@ -57,7 +112,7 @@ function RouteComponent() {
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
-            {isLoading && (
+            {isPending && (
               <div className="flex justify-start">
                 <div className="max-w-[70%] rounded-lg bg-muted px-4 py-2">
                   <div className="flex gap-1">
@@ -80,7 +135,7 @@ function RouteComponent() {
       </div>
 
       <ChatInput
-        disabled={isLoading}
+        disabled={isPending}
         onChange={setInput}
         onSubmit={handleSendMessage}
         value={input}
