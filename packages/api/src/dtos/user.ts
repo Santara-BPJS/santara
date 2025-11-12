@@ -22,7 +22,7 @@ export const userOutputSchema = z.object({
 
 export const getUsersOutputSchema = z.object({
   users: z.array(userOutputSchema),
-  totalFolderAccessCount: z.number(),
+  totalFolder: z.number(),
   total: z.number(),
   page: z.number(),
   limit: z.number(),

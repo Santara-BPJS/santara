@@ -13,10 +13,10 @@ import { EditUserDialog } from "./edit-user-dialog";
 
 type UserTableProps = {
   users: User[];
-  totalFolderAccessCount: number;
+  totalFolder: number;
 };
 
-export function UserTable({ users, totalFolderAccessCount }: UserTableProps) {
+export function UserTable({ users, totalFolder }: UserTableProps) {
   return (
     <div className="rounded-lg border bg-card">
       <Table>
@@ -39,7 +39,7 @@ export function UserTable({ users, totalFolderAccessCount }: UserTableProps) {
               </TableCell>
               <TableCell>{user.role}</TableCell>
               <TableCell>
-                {user.folderAccessCount} dari {totalFolderAccessCount}
+                {user.folderAccessCount} dari {totalFolder}
               </TableCell>
               <TableCell>
                 <Badge variant={user.emailVerified ? "secondary" : "outline"}>

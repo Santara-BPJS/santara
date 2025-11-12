@@ -44,7 +44,6 @@ export const userRouter = {
       const whereClause =
         conditions.length > 0 ? and(...conditions) : undefined;
 
-      // Get users with folder access count
       const usersQuery = db
         .select({
           id: schema.user.id,
@@ -55,26 +54,27 @@ export const userRouter = {
           image: schema.user.image,
           createdAt: schema.user.createdAt,
           updatedAt: schema.user.updatedAt,
-          // folderAccessCount: sql<number>`select 0`,
+          folderAccessCount: count(schema.userFolderAccess.folderId),
         })
         .from(schema.user)
+        .leftJoin(
+          schema.userFolderAccess,
+          eq(schema.user.id, schema.userFolderAccess.userId)
+        )
         .where(whereClause)
         .groupBy(schema.user.id)
         .limit(limit)
         .offset(offset);
 
-      // Get total count
       const totalQuery = db
         .select({ count: count() })
         .from(schema.user)
         .where(whereClause);
 
-      // const [usersRecords, metaRecords] = await Promise.all([
-      //   usersQuery,
-      //   totalQuery,
-      // ]);
+      const folderMetaQuery = db.select({ count: count() }).from(schema.folder);
+
       const { data: fetchData, error: fetchError } = await tryCatch(
-        Promise.all([usersQuery, totalQuery])
+        Promise.all([usersQuery, totalQuery, folderMetaQuery])
       );
       if (fetchError) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -85,7 +85,7 @@ export const userRouter = {
         });
       }
 
-      const [usersRecords, metaRecords] = fetchData;
+      const [usersRecords, metaRecords, folderMetaRecords] = fetchData;
 
       if (!metaRecords) {
         throw new ORPCError("INTERNAL_SERVER_ERROR", {
@@ -102,6 +102,21 @@ export const userRouter = {
         });
       }
 
+      if (!folderMetaRecords) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to fetch folder metadata",
+        });
+      }
+
+      const folderMeta = folderMetaRecords[0];
+      if (!folderMeta) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to fetch folder metadata",
+        });
+      }
+
       const users = usersRecords.map((user) => {
         const userRole = getRoleByIdx(user.role);
 
@@ -112,7 +127,7 @@ export const userRouter = {
           role: userRole ? userRole.label : "Unknown",
           emailVerified: user.emailVerified,
           image: user.image,
-          folderAccessCount: 0,
+          folderAccessCount: user.folderAccessCount,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         };
@@ -120,7 +135,7 @@ export const userRouter = {
 
       return {
         users,
-        totalFolderAccessCount: 0,
+        totalFolder: folderMeta.count,
         total: meta.count,
         page,
         limit,

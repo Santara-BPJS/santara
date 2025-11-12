@@ -89,10 +89,5 @@ export default function UserTableContainer() {
     );
   }
 
-  return (
-    <UserTable
-      totalFolderAccessCount={data.totalFolderAccessCount}
-      users={data.users}
-    />
-  );
+  return <UserTable totalFolder={data.totalFolder} users={data.users} />;
 }

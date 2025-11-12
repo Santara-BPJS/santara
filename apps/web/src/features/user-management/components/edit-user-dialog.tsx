@@ -23,12 +23,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { dto } from "@santara/api";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Checkbox } from "../../../shared/components/ui/checkbox";
+import {
+  Item,
+  ItemContent,
+  ItemMedia,
+  ItemTitle,
+} from "../../../shared/components/ui/item";
 import { orpc, queryClient } from "../../../shared/utils/orpc";
 import type { User } from "../types";
 
@@ -38,7 +46,29 @@ type EditUserDialogProps = {
 
 export function EditUserDialog({ user }: EditUserDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutateAsync } = useMutation(orpc.user.updateUser.mutationOptions());
+  const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([]);
+
+  const { mutateAsync: updateUser } = useMutation(
+    orpc.user.updateUser.mutationOptions()
+  );
+  const { mutateAsync: updateFolderAccess } = useMutation(
+    orpc.folderAccess.updateUserFolderAccess.mutationOptions()
+  );
+
+  const { data: folderData, isLoading: isLoadingFolders } = useQuery({
+    ...orpc.folderAccess.getUserFolderAccess.queryOptions({
+      input: { userId: user.id },
+    }),
+    enabled: isOpen,
+  });
+
+  useEffect(() => {
+    if (folderData?.folders) {
+      setSelectedFolderIds(
+        folderData.folders.filter((f) => f.hasAccess).map((f) => f.id)
+      );
+    }
+  }, [folderData]);
 
   const form = useForm({
     defaultValues: {
@@ -48,29 +78,46 @@ export function EditUserDialog({ user }: EditUserDialogProps) {
     validators: {
       onSubmit: dto.updateUserInputSchema,
     },
-    onSubmit: async ({ value }) => {
-      await mutateAsync(
-        {
-          ...value,
+    onSubmit: ({ value }) => {
+      const fetch = [
+        updateUser({ ...value }),
+        updateFolderAccess({
+          userId: user.id,
+          folderIds: selectedFolderIds,
+        }),
+      ];
+
+      toast.promise(Promise.all(fetch), {
+        loading: "Menyimpan perubahan...",
+        success: () => {
+          queryClient.invalidateQueries({
+            queryKey: orpc.user.getUsers.queryKey({ input: {} }),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.folderAccess.getUserFolderAccess.queryKey({
+              input: { userId: user.id },
+            }),
+          });
+          form.reset();
+          setIsOpen(false);
+          return "Pengguna berhasil diperbarui";
         },
-        {
-          onSuccess: () => {
-            toast.success("Pengguna berhasil diperbarui");
-            queryClient.invalidateQueries({
-              queryKey: orpc.user.getUsers.queryKey({ input: {} }),
-            });
-            form.reset();
-            setIsOpen(false);
-          },
-          onError: (ctx) => {
-            toast.error("Gagal memperbarui pengguna", {
-              description: ctx.message || "Silakan coba lagi.",
-            });
-          },
-        }
-      );
+        error: (e) => ({
+          message: "Gagal memperbarui pengguna. Silakan coba lagi.",
+          description: e.message || "",
+        }),
+      });
     },
   });
+
+  const handleToggleFolder = (folderId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedFolderIds([...selectedFolderIds, folderId]);
+      return;
+    }
+
+    setSelectedFolderIds(selectedFolderIds.filter((id) => id !== folderId));
+  };
 
   const handleClose = () => {
     form.reset();
@@ -138,6 +185,62 @@ export function EditUserDialog({ user }: EditUserDialogProps) {
             </FieldSet>
           </form>
         </div>
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-medium text-sm">Akses Sumber Pengetahuan</h3>
+            <p className="text-muted-foreground text-xs">
+              Pilih folder yang dapat diakses oleh pengguna ini
+            </p>
+          </div>
+
+          {isLoadingFolders && (
+            <div className="max-h-60 space-y-2 overflow-y-auto">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div
+                  className="flex flex-1 items-center gap-2.5 rounded border px-4 py-3"
+                  // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
+                  key={index}
+                >
+                  <Skeleton className="size-5 rounded-md" />
+                  <Skeleton className="h-5 w-32 rounded-md" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {folderData && folderData.folders.length === 0 && (
+            <p className="text-center text-muted-foreground text-sm">
+              Tidak ada folder tersedia
+            </p>
+          )}
+
+          {folderData && folderData.folders.length > 0 && (
+            <div className="max-h-60 space-y-2 overflow-y-auto">
+              {folderData.folders.map((folder) => (
+                <Item key={folder.id} size="sm" variant="outline">
+                  <ItemMedia>
+                    <Checkbox
+                      checked={selectedFolderIds.includes(folder.id)}
+                      id={`folder-${folder.id}`}
+                      onCheckedChange={(checked) =>
+                        handleToggleFolder(folder.id, checked === true)
+                      }
+                    />
+                  </ItemMedia>
+                  <ItemContent>
+                    <ItemTitle>
+                      <Label htmlFor={`folder-${folder.id}`}>
+                        {folder.name}
+                      </Label>
+                    </ItemTitle>
+                  </ItemContent>
+                </Item>
+              ))}
+            </div>
+          )}
+        </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button onClick={handleClose} variant="outline">
@@ -147,7 +250,9 @@ export function EditUserDialog({ user }: EditUserDialogProps) {
           <form.Subscribe>
             {(state) => (
               <Button
-                disabled={!state.canSubmit || state.isSubmitting}
+                disabled={
+                  !state.canSubmit || state.isSubmitting || isLoadingFolders
+                }
                 form="edit-user-form"
                 type="submit"
               >
