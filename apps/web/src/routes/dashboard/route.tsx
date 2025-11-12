@@ -3,6 +3,7 @@ import {
   createFileRoute,
   Link,
   Outlet,
+  redirect,
   useNavigate,
   useRouterState,
 } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ import {
   UsersIcon,
   ZapIcon,
 } from "lucide-react";
+import SantaraLogo from "../../shared/components/santara-logo";
 import { Input } from "../../shared/components/ui/input";
 import { Separator } from "../../shared/components/ui/separator";
 import {
@@ -31,9 +33,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "../../shared/components/ui/sidebar";
-import SantaraLogo from "../../shared/components/santara-logo";
 import UserMenu from "../../shared/components/user-menu";
-import { redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
