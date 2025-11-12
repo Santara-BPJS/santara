@@ -18,7 +18,7 @@ const testimonials = [
     stars: 5,
     quote:
       "Sejak pakai Santara, proses verifikasi jadi lebih cepat & konsisten. Kami tak lagi mencari-cari file lama.",
-    image: undefined,
+    image: "https://i.pravatar.cc/300?img=47",
     name: "Rani",
     role: "Verifikator Klaim, RS Rujukan",
   },
