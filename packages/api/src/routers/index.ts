@@ -1,7 +1,7 @@
 import type { RouterClient } from "@orpc/server";
 import { protectedProcedure, publicProcedure } from "../index";
-import { storageRouter } from "./storage";
 import { chatRouter } from "./chat";
+import { storageRouter } from "./storage";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => "OK"),
