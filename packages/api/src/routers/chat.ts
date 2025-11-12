@@ -1,55 +1,75 @@
-import { z } from "zod";
+import { ORPCError } from "@orpc/client";
+import { HTTP_STATUS_CODE, tryCatch } from "@santara/utils";
+import { env } from "cloudflare:workers";
+import { nanoid } from "nanoid";
+import {
+  chatInputSchema,
+  chatResponseSchema,
+  type AIChatResponse,
+} from "../dtos/chat";
 import { protectedProcedure } from "../index";
-
-const chatRequestSchema = z.object({
-  message: z.string().min(1),
-  conversationId: z.string().optional(),
-});
-
-const sourceReferenceSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  filename: z.string(),
-});
-
-const chatResponseSchema = z.object({
-  answer: z.string(),
-  sources: z.array(sourceReferenceSchema),
-  conversation_id: z.string(),
-});
 
 export const chatRouter = {
   sendMessage: protectedProcedure
-    .input(chatRequestSchema)
+    .input(chatInputSchema)
     .output(chatResponseSchema)
-    .mutation(async ({ input }) => {
-      const aiApiUrl = process.env.SANTARA_AI_API_URL;
+    .handler(async ({ input }) => {
+      const { message, conversationId } = input;
 
-      try {
-        const response = await fetch(`${aiApiUrl}/chat`, {
+      let conversationIdToUse = conversationId;
+      if (!conversationIdToUse) {
+        conversationIdToUse = nanoid();
+      }
+
+      const req = {
+        query: message,
+        conversationId: conversationIdToUse,
+      };
+
+      const { data: res, error: fetchErr } = await tryCatch(
+        fetch(`${env.SANTARA_AI_API_URL}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            query: input.message,
-            conversation_id: input.conversationId,
-          }),
+          body: JSON.stringify(req),
+        })
+      );
+      if (fetchErr) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to connect to Santara AI API",
+          cause: fetchErr,
+          data: { req },
         });
-
-        if (!response.ok) {
-          throw new Error(`AI API error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data;
-      } catch (_error) {
-        return {
-          answer:
-            "Maaf, terjadi kesalahan saat memproses pertanyaan Anda. Silakan coba lagi.",
-          sources: [],
-          conversation_id: input.conversationId || `fallback_${Date.now()}`,
-        };
       }
+
+      const { data: json, error: jsonErr } = await tryCatch(
+        res.json() as Promise<AIChatResponse>
+      );
+      if (jsonErr) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          status: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+          message: "Failed to parse response from Santara AI API",
+          cause: jsonErr,
+          data: { req, res },
+        });
+      }
+
+      if (!res.ok) {
+        throw new ORPCError("BAD_GATEWAY", {
+          status: HTTP_STATUS_CODE.BAD_GATEWAY,
+          message: "Santara AI API returned an error",
+          data: { req, res: json },
+        });
+      }
+
+      const output = {
+        answer: json.answer,
+        sources: json.sources,
+        conversationId: json.conversation_id,
+      };
+
+      return output;
     }),
 };
