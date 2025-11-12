@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ClockIcon } from "lucide-react";
+import { ClockIcon, TrendingUpIcon } from "lucide-react";
 import { AnimatedSearchInput } from "../../features/dashboard/components/animated-search-input";
 import { RecentUpdateItem } from "../../features/dashboard/components/recent-update-item";
 import { StatCard } from "../../features/dashboard/components/stat-card";
@@ -18,10 +18,17 @@ export const Route = createFileRoute("/dashboard/home")({
 
 function RouteComponent() {
   const stats = [
-    { title: "Top 5 Pertanyaan Mingguan", value: "5" },
     { title: "Jumlah Dokumen Pengetahuan", value: "247" },
     { title: "Rata-rata Waktu Temuan Jawaban", value: "7 detik" },
     { title: "Penambahan Knowledge Terbaru", value: "12" },
+  ];
+
+  const topQuestions = [
+    "Bagaimana cara cek status klaim yang masih proses di rumah sakit?",
+    "Apa penyebab klaim saya ditolak karena 'kode INA-CBG tidak sesuai'?",
+    "Apakah rujukan FKTP masih berlaku setelah pasien dirawat inap?",
+    "Bagaimana cara mengunggah ulang berkas klaim yang kurang lengkap?",
+    "Kapan batas waktu maksimal pengajuan klaim rawat inap?",
   ];
 
   const recentUpdates = [
@@ -71,7 +78,31 @@ function RouteComponent() {
 
       <AnimatedSearchInput />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <TrendingUpIcon className="size-6 text-primary" />
+            Top 5 Pertanyaan Mingguan
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {topQuestions.map((question, index) => (
+              <div
+                className="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-accent"
+                key={question}
+              >
+                <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground text-sm">
+                  {index + 1}
+                </div>
+                <p className="text-sm leading-relaxed">{question}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (
           <StatCard key={stat.title} title={stat.title} value={stat.value} />
         ))}
