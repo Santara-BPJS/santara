@@ -15,10 +15,6 @@ export function getRoleByKey(key: string): Role | undefined {
   return Roles.find((role) => role.key === key);
 }
 
-export function getRoleIdx(key: string): number | undefined {
-  return Roles.find((role) => role.key === key)?.idx;
-}
-
-export function getRoleLabel(idx: number): string | undefined {
-  return Roles.find((role) => role.idx === idx)?.label;
+export function getRoleByLabel(label: string): Role | undefined {
+  return Roles.find((role) => role.label === label);
 }
