@@ -1,5 +1,4 @@
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,17 +7,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { Pencil, Trash2 } from "lucide-react";
 import type { User } from "../types";
-import { getRoleBadgeColor, getStatusBadgeColor } from "../utils/badge-styles";
+import { DeleteUserDialog } from "./delete-user-dialog";
+import { EditUserDialog } from "./edit-user-dialog";
 
 type UserTableProps = {
   users: User[];
-  onEdit: (userId: string) => void;
-  onDelete: (userId: string) => void;
+  totalFolder: number;
 };
 
-export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
+export function UserTable({ users, totalFolder }: UserTableProps) {
   return (
     <div className="rounded-lg border bg-card">
       <Table>
@@ -39,33 +37,19 @@ export function UserTable({ users, onEdit, onDelete }: UserTableProps) {
               <TableCell className="text-muted-foreground">
                 {user.email}
               </TableCell>
+              <TableCell>{user.role}</TableCell>
               <TableCell>
-                <Badge className={getRoleBadgeColor(user.role)}>
-                  {user.role}
-                </Badge>
+                {user.folderAccessCount} dari {totalFolder}
               </TableCell>
-              <TableCell>{user.resourceAccess}</TableCell>
               <TableCell>
-                <Badge className={getStatusBadgeColor(user.status)}>
-                  {user.status}
+                <Badge variant={user.emailVerified ? "secondary" : "outline"}>
+                  {user.emailVerified ? "Active" : "Invited"}
                 </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => onEdit(user.id)}
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <Pencil className="text-green-600" />
-                  </Button>
-                  <Button
-                    onClick={() => onDelete(user.id)}
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <Trash2 className="text-red-600" />
-                  </Button>
+                  <EditUserDialog user={user} />
+                  <DeleteUserDialog user={user} />
                 </div>
               </TableCell>
             </TableRow>
