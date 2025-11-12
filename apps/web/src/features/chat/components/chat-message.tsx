@@ -67,7 +67,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               isUser ? "text-primary-foreground/70" : "text-muted-foreground"
             )}
           >
-            {message.timestamp.toLocaleTimeString("id-ID", {
+            {message.createdAt.toLocaleTimeString("id-ID", {
               hour: "2-digit",
               minute: "2-digit",
             })}

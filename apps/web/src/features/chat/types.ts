@@ -10,6 +10,6 @@ export type Message = {
   id: string;
   content: string;
   sender: MessageSender;
-  timestamp: Date;
+  createdAt: Date;
   sources?: SourceReference[];
 };
