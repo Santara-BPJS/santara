@@ -155,13 +155,13 @@ function RouteComponent() {
       </Sidebar>
       <SidebarInset className="[--header-height:4rem]">
         <header className="sticky top-0 flex h-(--header-height) shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-1 flex-row items-center gap-2">
             <SidebarTrigger className="size-9" />
             <Separator
               className="mr-2 data-[orientation=vertical]:h-8"
               orientation="vertical"
             />
-            <div className="relative w-sm">
+            <div className="relative max-w-sm grow">
               <Input
                 className="peer ps-9"
                 placeholder="Tekan '/' untuk mencari"
