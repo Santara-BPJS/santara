@@ -13,3 +13,15 @@ export type Message = {
   createdAt: Date;
   sources?: SourceReference[];
 };
+
+export type Conversation = {
+  id: string;
+  title: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastMessage?: {
+    content: string;
+    sender: MessageSender;
+    createdAt: Date;
+  };
+};
