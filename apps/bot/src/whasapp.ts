@@ -32,15 +32,19 @@ export const WhatsAppLive = Layer.scoped(
     const runFork = Runtime.runFork(runtime);
 
     // Create and acquire WhatsApp client as a managed resource
+    const authPath = process.env.AUTH_INFO_PATH || "./auth_info";
+    const chromiumPath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
+
     const client = yield* Effect.acquireRelease(
       Effect.try({
         try: () =>
           new Client({
             authStrategy: new LocalAuth({
-              dataPath: "./auth_info",
+              dataPath: authPath,
             }),
             puppeteer: {
               headless: true,
+              executablePath: chromiumPath,
               args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -50,6 +54,21 @@ export const WhatsAppLive = Layer.scoped(
                 "--no-zygote",
                 "--single-process",
                 "--disable-gpu",
+                "--disable-software-rasterizer",
+                "--disable-background-timer-throttling",
+                "--disable-backgrounding-occluded-windows",
+                "--disable-renderer-backgrounding",
+                "--disable-features=TranslateUI",
+                "--disable-ipc-flooding-protection",
+                "--disable-hang-monitor",
+                "--disable-popup-blocking",
+                "--disable-prompt-on-repost",
+                "--disable-sync",
+                "--disable-extensions",
+                "--metrics-recording-only",
+                "--no-default-browser-check",
+                "--mute-audio",
+                "--hide-scrollbars",
               ],
             },
           }),
@@ -58,12 +77,19 @@ export const WhatsAppLive = Layer.scoped(
       }),
       // Cleanup function - destroy client on scope close
       (existingClient) =>
-        Effect.promise(() => existingClient.destroy()).pipe(
-          Effect.catchAll((error) =>
-            Effect.log(`Error destroying WhatsApp client: ${String(error)}`)
-          ),
-          Effect.asVoid
-        )
+        Effect.gen(function* () {
+          // Only destroy if client was initialized
+          if (existingClient.pupBrowser) {
+            yield* Effect.tryPromise({
+              try: () => existingClient.destroy(),
+              catch: (error) => error as Error,
+            }).pipe(Effect.catchAll(() => Effect.void));
+          } else {
+            yield* Effect.log(
+              "WhatsApp client was not fully initialized, skipping cleanup"
+            );
+          }
+        })
     );
 
     // Setup event handlers with proper Effect execution

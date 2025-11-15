@@ -1,0 +1,60 @@
+# This file is at apps/bot but the build context is the monorepo root
+# So paths are relative to the project root
+
+# Node/Bun
+**/node_modules
+**/.bun
+
+# Build outputs
+**/dist
+**/*.log
+**/*.tsbuildinfo
+
+# Auth and cache (will be mounted as volumes)
+**/auth_info
+**/.wwebjs_auth
+**/.wwebjs_cache
+
+# Environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+**/*~
+
+# OS
+**/.DS_Store
+**/Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+!docker-entrypoint.sh
+
+# Build artifacts
+**/.turbo
+**/.next
+**/.nuxt
+**/coverage
+
+# Only exclude source files from unneeded apps/packages
+# (we need their package.json for workspace resolution)
+apps/web/src
+apps/web/public
+apps/web/node_modules
+apps/server/src
+apps/server/node_modules
+packages/api/src
+packages/auth/src
+packages/storage/src

@@ -1,0 +1,64 @@
+services:
+  bot:
+    build:
+      context: ../..
+      dockerfile: apps/bot/Dockerfile
+      # Use BuildKit for faster builds with cache
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    container_name: santara-whatsapp-bot
+    restart: unless-stopped
+
+    # Start as root to fix volume permissions, then drop to botuser
+    user: root
+
+    environment:
+      # Google AI API Key (required)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+      # Database connection (if needed)
+      - DATABASE_URL=${DATABASE_URL}
+
+      # Optional: Custom paths
+      - AUTH_INFO_PATH=/app/data/auth_info
+      - WWEBJS_CACHE_PATH=/app/data/.wwebjs_cache
+
+    volumes:
+      # Persist WhatsApp authentication
+      - whatsapp-auth:/app/data/auth_info
+
+      # Persist WhatsApp cache
+      - whatsapp-cache:/app/data/.wwebjs_cache
+
+      # Increase shared memory for Chromium (required for headless Chrome)
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: 2147483648  # 2GB
+
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  whatsapp-auth:
+    driver: local
+  whatsapp-cache:
+    driver: local
