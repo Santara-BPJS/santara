@@ -28,6 +28,7 @@
     "check-types": "bun run --filter '*' check-types",
     "dev:web": "bun run --filter web dev",
     "dev:server": "bun run --filter server dev",
+    "dev:bot": "bun run --filter bot dev",
     "db:push": "bun run --filter @santara/db db:push",
     "db:studio": "bun run --filter @santara/db db:studio",
     "db:generate": "bun run --filter @santara/db db:generate",
