@@ -2,7 +2,7 @@ import { ORPCError } from "@orpc/client";
 import { db, schema } from "@santara/db";
 import { HTTP_STATUS_CODE, tryCatch } from "@santara/utils";
 import { env } from "cloudflare:workers";
-import { and, desc, eq, ilike, lt } from "drizzle-orm";
+import { and, count, desc, eq, ilike, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import {
   chatInputSchema,
@@ -39,10 +39,10 @@ export const chatRouter = {
 
       // Create new conversation if conversationId is not provided
       if (conversationIdToUse) {
-        // Verify conversation belongs to user
-        const { data: existingConv, error: convErr } = await tryCatch(
+        // Verify conversation belongs to user (optimized with count)
+        const { data: convCount, error: convErr } = await tryCatch(
           db
-            .select()
+            .select({ count: count() })
             .from(schema.conversation)
             .where(
               and(
@@ -50,7 +50,6 @@ export const chatRouter = {
                 eq(schema.conversation.userId, userId)
               )
             )
-            .limit(1)
         );
 
         if (convErr) {
@@ -61,7 +60,7 @@ export const chatRouter = {
           });
         }
 
-        if (!existingConv || existingConv.length === 0) {
+        if (!convCount || convCount[0]?.count === 0) {
           throw new ORPCError("NOT_FOUND", {
             status: HTTP_STATUS_CODE.NOT_FOUND,
             message: "Conversation not found",
@@ -77,8 +76,6 @@ export const chatRouter = {
             id: conversationIdToUse,
             title,
             userId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           })
         );
 
@@ -100,7 +97,6 @@ export const chatRouter = {
           content: message,
           sender: "user",
           sources: null,
-          createdAt: new Date(),
         })
       );
 
@@ -176,18 +172,6 @@ export const chatRouter = {
           message: "Failed to save assistant message",
           cause: saveAssistantMsgErr,
         });
-      }
-
-      // Update conversation updatedAt
-      const { error: updateConvErr } = await tryCatch(
-        db
-          .update(schema.conversation)
-          .set({ updatedAt: new Date() })
-          .where(eq(schema.conversation.id, conversationIdToUse))
-      );
-
-      if (updateConvErr) {
-        // TODO Log but don't fail the request
       }
 
       const output = {
