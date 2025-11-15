@@ -20,15 +20,36 @@ const main = Command.make("start", {}, () =>
     yield* Effect.log("Press 'q' or type 'quit' to stop the bot.");
 
     // Handle graceful shutdown on stdin input and SIGTERM
-    yield* Effect.async<void>(() => {
+    yield* Effect.async<void>((resume) => {
       let buffer = "";
+      let isShuttingDown = false;
+
+      const cleanup = () => {
+        process.stdin.removeListener("data", onData);
+        process.removeAllListeners("SIGTERM");
+        if (process.stdin.isTTY) {
+          process.stdin.setRawMode(false);
+        }
+        process.stdin.pause();
+      };
 
       const handleShutdown = (reason: string) => {
+        // Prevent multiple shutdown calls
+        if (isShuttingDown) {
+          return;
+        }
+        isShuttingDown = true;
+
+        // Clean up listeners immediately
+        cleanup();
+
         Effect.gen(function* () {
           yield* Effect.log(`${reason}. Shutting down WhatsApp bot...`);
         })
           .pipe(Effect.catchAll((error) => Effect.log(String(error))))
           .pipe(Effect.runPromise);
+
+        resume(Effect.void);
       };
 
       // Enable stdin to listen for input
@@ -70,15 +91,8 @@ const main = Command.make("start", {}, () =>
       process.stdin.on("data", onData);
       process.on("SIGTERM", () => handleShutdown("Received SIGTERM"));
 
-      // Cleanup function
-      return Effect.sync(() => {
-        process.stdin.removeListener("data", onData);
-        process.removeAllListeners("SIGTERM");
-        if (process.stdin.isTTY) {
-          process.stdin.setRawMode(false);
-        }
-        process.stdin.pause();
-      });
+      // Cleanup function (in case resume is called from elsewhere)
+      return Effect.sync(cleanup);
     });
 
     yield* Effect.log("Bot stopped. Cleaning up resources...");
