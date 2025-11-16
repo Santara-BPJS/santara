@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# Verify Chromium is installed
+if [ ! -f "/usr/bin/chromium" ]; then
+    echo "ERROR: Chromium not found at /usr/bin/chromium"
+    exit 1
+fi
+
+echo "Chromium version: $(chromium --version 2>&1 || echo 'Unable to get version')"
+
 # Fix permissions on data directories at runtime
 # This is necessary because Docker volumes are created as root
 if [ "$(id -u)" = "0" ]; then

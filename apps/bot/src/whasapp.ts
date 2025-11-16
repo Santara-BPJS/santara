@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/useNumericSeparators: TODO */
 import { Context, Effect, Layer, Runtime } from "effect";
 import qrcode from "qrcode-terminal";
 import { Client, LocalAuth, type Message } from "whatsapp-web.js";
@@ -33,7 +34,62 @@ export const WhatsAppLive = Layer.scoped(
 
     // Create and acquire WhatsApp client as a managed resource
     const authPath = process.env.AUTH_INFO_PATH || "./auth_info";
-    const chromiumPath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
+    const chromiumPath =
+      process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/chromium";
+    const useLightweightMode = process.env.CHROMIUM_LIGHTWEIGHT_MODE === "true";
+
+    yield* Effect.log(`Using Chromium at: ${chromiumPath}`);
+    yield* Effect.log(`Auth path: ${authPath}`);
+    if (useLightweightMode) {
+      yield* Effect.log(
+        "⚡ Lightweight mode enabled for resource-constrained environments"
+      );
+    }
+
+    // Chromium arguments - lightweight mode for resource-constrained VPS
+    const lightweightArgs = [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-software-rasterizer",
+      "--single-process",
+      "--no-zygote",
+      "--no-first-run",
+      "--disable-extensions",
+      "--disable-background-networking",
+      "--disable-default-apps",
+      "--mute-audio",
+    ];
+
+    // Standard args - more features but higher resource usage
+    const standardArgs = [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-accelerated-2d-canvas",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process",
+      "--disable-gpu",
+      "--disable-software-rasterizer",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
+      "--disable-features=TranslateUI",
+      "--disable-ipc-flooding-protection",
+      "--disable-hang-monitor",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-sync",
+      "--disable-extensions",
+      "--metrics-recording-only",
+      "--no-default-browser-check",
+      "--mute-audio",
+      "--hide-scrollbars",
+    ];
+
+    const chromiumArgs = useLightweightMode ? lightweightArgs : standardArgs;
 
     const client = yield* Effect.acquireRelease(
       Effect.try({
@@ -45,31 +101,8 @@ export const WhatsAppLive = Layer.scoped(
             puppeteer: {
               headless: true,
               executablePath: chromiumPath,
-              args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-accelerated-2d-canvas",
-                "--no-first-run",
-                "--no-zygote",
-                "--single-process",
-                "--disable-gpu",
-                "--disable-software-rasterizer",
-                "--disable-background-timer-throttling",
-                "--disable-backgrounding-occluded-windows",
-                "--disable-renderer-backgrounding",
-                "--disable-features=TranslateUI",
-                "--disable-ipc-flooding-protection",
-                "--disable-hang-monitor",
-                "--disable-popup-blocking",
-                "--disable-prompt-on-repost",
-                "--disable-sync",
-                "--disable-extensions",
-                "--metrics-recording-only",
-                "--no-default-browser-check",
-                "--mute-audio",
-                "--hide-scrollbars",
-              ],
+              timeout: 60000, // Increase timeout to 60 seconds for VPS
+              args: chromiumArgs,
             },
           }),
         catch: (error) =>
@@ -295,14 +328,58 @@ export const WhatsAppLive = Layer.scoped(
       runFork(effect);
     });
 
-    // Initialize the client - this returns a Promise
-    yield* Effect.tryPromise({
+    // Initialize the client with retry logic - this returns a Promise
+    yield* Effect.log("Starting WhatsApp client initialization...");
+    yield* Effect.log(
+      "This may take up to 60 seconds on resource-constrained VPS..."
+    );
+
+    const initializeClient = Effect.tryPromise({
       try: () => client.initialize(),
       catch: (error) =>
         new Error(`Failed to initialize WhatsApp client: ${String(error)}`),
-    });
+    }).pipe(
+      Effect.tap(() =>
+        Effect.log("Attempt successful, client is initializing...")
+      ),
+      Effect.tapError((error) =>
+        Effect.logError(`Initialization attempt failed: ${error.message}`)
+      )
+    );
 
-    yield* Effect.log("WhatsApp client initialized successfully");
+    yield* initializeClient.pipe(
+      Effect.retry({
+        times: 2, // Total 3 attempts (initial + 2 retries)
+      }),
+      Effect.tapError((error) =>
+        Effect.gen(function* () {
+          yield* Effect.logError(
+            "\n=== Chromium Initialization Failed After All Retries ==="
+          );
+          yield* Effect.logError(`Final Error: ${error.message}`);
+          yield* Effect.logError("\n🔍 Troubleshooting steps:");
+          yield* Effect.logError("1. Check available memory: docker stats");
+          yield* Effect.logError(
+            "2. Verify Chromium installation: docker exec <container> chromium --version"
+          );
+          yield* Effect.logError(
+            "3. Check container logs: docker logs <container>"
+          );
+          yield* Effect.logError("4. Run debug script: ./debug-chromium.sh");
+          yield* Effect.logError("\n⚙️  For VPS deployment, ensure:");
+          yield* Effect.logError("  • At least 2GB RAM available");
+          yield* Effect.logError("  • /dev/shm mounted with 2GB size");
+          yield* Effect.logError("  • SYS_ADMIN capability enabled");
+          yield* Effect.logError("  • No firewall blocking internal processes");
+          yield* Effect.logError("\n💡 If on low-resource VPS, consider:");
+          yield* Effect.logError("  • Upgrading to 4GB RAM");
+          yield* Effect.logError("  • Closing other services");
+          yield* Effect.logError("  • Using swap space");
+        })
+      )
+    );
+
+    yield* Effect.log("✅ WhatsApp client initialized successfully");
 
     // Return service implementation with Effect-based methods
     return {

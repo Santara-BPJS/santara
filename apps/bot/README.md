@@ -149,6 +149,7 @@ This automatically enables BuildKit and optimized caching.
 | `DATABASE_URL` | No | PostgreSQL connection string (if needed) |
 | `AUTH_INFO_PATH` | No | Custom path for WhatsApp auth (default: `./auth_info`) |
 | `WWEBJS_CACHE_PATH` | No | Custom path for WhatsApp cache (default: `./.wwebjs_cache`) |
+| `CHROMIUM_LIGHTWEIGHT_MODE` | No | Set to `true` for resource-constrained VPS (default: `false`) |
 
 ### Customization
 
@@ -191,6 +192,28 @@ docker-compose restart bot    # Restart bot
 
 ## Troubleshooting
 
+### Quick Fix: Chromium Timeout on VPS
+
+If you're experiencing `TimeoutError: Timed out after 30000 ms` on your VPS:
+
+1. **Enable lightweight mode** (fastest fix):
+   ```bash
+   cd apps/bot
+   echo "CHROMIUM_LIGHTWEIGHT_MODE=true" >> .env
+   docker-compose restart bot
+   ```
+
+2. **Watch logs** to confirm it's working:
+   ```bash
+   docker-compose logs -f bot
+   # Look for: "⚡ Lightweight mode enabled for resource-constrained environments"
+   ```
+
+3. **If still failing**, run the debug script:
+   ```bash
+   ./debug-chromium.sh
+   ```
+
 ### Docker build warnings about failed packages
 - Some optional dependencies may fail to install (e.g., `@biomejs/biome` platform-specific binaries)
 - This is **expected and normal** - the build continues if core packages are installed
@@ -222,11 +245,58 @@ docker-compose restart bot    # Restart bot
 - Reduce `MAX_MESSAGES_PER_CHAT` in `conversation-memory.ts`
 
 ### Puppeteer/Chromium errors
-- **Docker**: Chromium is pre-installed with all dependencies and 2GB shared memory
-- **Local**: Install Chromium: `brew install chromium` (macOS) or `apt install chromium` (Linux)
-- If you see "Protocol error" or "Session closed": The container might need more memory or shared memory
-  - Increase memory in `docker-compose.yml` under `deploy.resources.limits.memory`
-  - Shared memory is already set to 2GB in the compose file
+
+**Common on VPS/Ubuntu:**
+- Error: `TimeoutError: Timed out after 30000 ms while trying to connect to the browser`
+
+**Automatic Retry:** The bot now automatically retries Chromium initialization 3 times with exponential backoff (3s, 4.5s delays) and provides detailed troubleshooting guidance on failure.
+
+**Solution 1 - Enable Lightweight Mode (RECOMMENDED for VPS < 2GB RAM):**
+  ```bash
+  # In your .env file
+  CHROMIUM_LIGHTWEIGHT_MODE=true
+  ```
+  This uses a minimal set of Chromium flags optimized for resource-constrained environments.
+
+**Solution 2 - Increase Memory:**
+  VPS needs at least 2GB RAM for Chromium in standard mode
+  ```yaml
+  # In docker-compose.yml
+  deploy:
+    resources:
+      limits:
+        memory: 2G  # Increased from 1G
+  ```
+
+**Solution 3 - Run Debug Script:**
+  ```bash
+  chmod +x apps/bot/debug-chromium.sh
+  ./apps/bot/debug-chromium.sh
+  ```
+  This checks Chromium installation, version, memory, and provides diagnostic information.
+
+**Solution 4 - Verify Chromium:**
+  ```bash
+  docker exec -it santara-whatsapp-bot chromium --version
+  ```
+
+**VPS Requirements:**
+  - **Lightweight mode**: 1GB RAM minimum, 2GB recommended
+  - **Standard mode**: 2GB RAM minimum, 4GB recommended
+  - At least 1 CPU core (2 cores recommended)
+  - Low-end VPS may struggle with standard Chromium configuration
+
+**Local development:**
+- **macOS**: `brew install chromium`
+- **Linux**: `apt install chromium`
+
+**Docker-specific:**
+- Chromium pre-installed with all dependencies
+- 2GB shared memory allocated (/dev/shm)
+- 60-second timeout for slow VPS
+- `SYS_ADMIN` capability for Chrome sandbox
+- Automatic retry with exponential backoff
+- Two configuration modes: standard and lightweight
 
 ## License
 

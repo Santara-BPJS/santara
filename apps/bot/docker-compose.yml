@@ -23,6 +23,11 @@ services:
       - AUTH_INFO_PATH=/app/data/auth_info
       - WWEBJS_CACHE_PATH=/app/data/.wwebjs_cache
 
+      # Chromium configuration
+      # Set to "true" for resource-constrained VPS (< 2GB RAM)
+      # This uses fewer Chromium flags for better compatibility
+      - CHROMIUM_LIGHTWEIGHT_MODE=${CHROMIUM_LIGHTWEIGHT_MODE:-false}
+
     volumes:
       # Persist WhatsApp authentication
       - whatsapp-auth:/app/data/auth_info
@@ -36,19 +41,19 @@ services:
         tmpfs:
           size: 2147483648  # 2GB
 
-    # Security settings
-    security_opt:
-      - no-new-privileges:true
+    # Security settings (relaxed for Chromium to work)
+    cap_add:
+      - SYS_ADMIN  # Required for Chrome sandbox in some environments
 
     # Resource limits (optional but recommended)
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 1G
+          cpus: '2'
+          memory: 2G
         reservations:
           cpus: '0.5'
-          memory: 512M
+          memory: 1G
 
     # Logging configuration
     logging:
