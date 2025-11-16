@@ -64,7 +64,7 @@ export const folderRouter = o.prefix("/folders").router({
         fileCount: row.fileCount,
         user: {
           id: row.userId,
-          role: enums.getRoleLabel(row.userRole) || "-",
+          role: enums.getRoleByIdx(row.userRole)?.label || "-",
         },
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
